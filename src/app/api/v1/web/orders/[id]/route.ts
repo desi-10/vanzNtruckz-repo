@@ -96,7 +96,7 @@ export const PATCH = async (
       pickUpPoint: body.get("pickUpPoint") as string,
       dropOffPoint: body.get("dropOffPoint") as string,
       vehicleId: body.get("vehicleId") as string,
-      parcelType: body.get("parcelType") as string,
+      parcelIde: body.get("parcelId") as string,
       pieces: body.get("pieces") as string,
       image: body.get("imageOne") as string,
       imageTwo: body.get("imageTwo") as string,
@@ -119,14 +119,15 @@ export const PATCH = async (
       pickUpPoint,
       dropOffPoint,
       vehicleId,
-      parcelType,
+      parcelId,
       pieces,
       imageOne,
       imageTwo,
+      imageThree,
       recepientName,
       recepientNumber,
       additionalInfo,
-      baseCharge,
+
       coupon,
       status,
     } = parsedData.data;
@@ -137,6 +138,7 @@ export const PATCH = async (
 
     let uploadResult = null;
     let uploadResultTwo = null;
+    let uploadResultThree = null;
 
     if (imageOne) {
       if (
@@ -160,6 +162,17 @@ export const PATCH = async (
       uploadResultTwo = await uploadFile("orders", imageTwo as File);
     }
 
+    if (imageThree) {
+      if (
+        order.imageThree &&
+        typeof order.imageThree === "object" &&
+        "id" in order.imageThree
+      ) {
+        await deleteFile(order.imageThree.id as string);
+      }
+      uploadResultThree = await uploadFile("orders", imageTwo as File);
+    }
+
     const updatedOrder = await prisma.order.update({
       where: {
         id,
@@ -168,16 +181,16 @@ export const PATCH = async (
         pickUpPoint: pickUpPoint || order.pickUpPoint || "",
         dropOffPoint: dropOffPoint || order.dropOffPoint || "",
         vehicleId: vehicleId || order.vehicleId || "",
-        parcelType: parcelType || order.parcelType || "",
+        parcelId: parcelId || order.parcelId || "",
         pieces: pieces || order.pieces || 0,
         recepientName: recepientName || order.recepientName || "",
         recepientNumber: recepientNumber || order.recepientNumber || "",
         additionalInfo: additionalInfo || order.additionalInfo || null,
-        baseCharge: baseCharge || order.baseCharge || "",
         couponId: coupon || order.couponId || null,
         status: status || order.status || "PENDING",
         imageOne: uploadResult || order.imageOne || undefined,
         imageTwo: uploadResultTwo || order.imageTwo || undefined,
+        imageThree: uploadResultThree || order.imageThree || undefined,
       },
     });
 

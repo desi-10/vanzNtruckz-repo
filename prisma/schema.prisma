@@ -203,6 +203,7 @@ model Order {
   pieces          Int
   imageOne        Json?
   imageTwo        Json?
+  imageThree      Json?
   parcelId        String
   recepientName   String
   recepientNumber String
