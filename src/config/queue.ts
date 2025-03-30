@@ -1,5 +1,4 @@
 import { Queue, Worker, Job } from "bullmq";
-import { sendAdminNotification } from "./firebase";
 import IORedis from "ioredis";
 
 // Initialize Redis connection with Vercel Redis
@@ -17,20 +16,12 @@ const worker = new Worker(
   "orderNotifications",
   async (job: Job) => {
     try {
-      const { orderId, fmcToken } = job.data;
+      const { orderId } = job.data;
       console.log(`Processing notification for Order Id: ${orderId}`);
 
       // Create the notification payload
-      const message = {
-        topic: "order",
-        notification: {
-          title: `No bids for order ${orderId} has been placed.`,
-          body: `No bids for order ${orderId} has been placed.`,
-        },
-        token: fmcToken,
-      };
 
-      await sendAdminNotification(message);
+      // await sendAdminNotification(message);
       console.log(`✅ Notification sent for Order ID: ${orderId}`);
     } catch (error) {
       // console.error(`❌ Failed to send notification: ${error.message}`);

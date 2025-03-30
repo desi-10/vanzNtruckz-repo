@@ -20,6 +20,12 @@ export const GET = async (
         id,
       },
       include: {
+        items: {
+          select: {
+            parcelId: true,
+            pieces: true,
+          },
+        },
         coupon: {
           select: {
             id: true,
@@ -84,6 +90,14 @@ export const PATCH = async (
       where: {
         id,
       },
+      include: {
+        items: {
+          select: {
+            parcelId: true,
+            pieces: true,
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -96,10 +110,10 @@ export const PATCH = async (
       pickUpPoint: body.get("pickUpPoint") as string,
       dropOffPoint: body.get("dropOffPoint") as string,
       vehicleId: body.get("vehicleId") as string,
-      parcelIde: body.get("parcelId") as string,
-      pieces: body.get("pieces") as string,
+      parcel: body.get("parcel") as string,
       image: body.get("imageOne") as string,
       imageTwo: body.get("imageTwo") as string,
+      imageThree: body.get("imageThree") as string,
       recepientName: body.get("recepientName") as string,
       recepientNumber: body.get("recepientNumber") as string,
       additionalInfo: body.get("additionalInfo") as string,
@@ -119,8 +133,7 @@ export const PATCH = async (
       pickUpPoint,
       dropOffPoint,
       vehicleId,
-      parcelId,
-      pieces,
+      parcel,
       imageOne,
       imageTwo,
       imageThree,
@@ -170,7 +183,7 @@ export const PATCH = async (
       ) {
         await deleteFile(order.imageThree.id as string);
       }
-      uploadResultThree = await uploadFile("orders", imageTwo as File);
+      uploadResultThree = await uploadFile("orders", imageThree as File);
     }
 
     const updatedOrder = await prisma.order.update({
@@ -181,8 +194,13 @@ export const PATCH = async (
         pickUpPoint: pickUpPoint || order.pickUpPoint || "",
         dropOffPoint: dropOffPoint || order.dropOffPoint || "",
         vehicleId: vehicleId || order.vehicleId || "",
-        parcelId: parcelId || order.parcelId || "",
-        pieces: pieces || order.pieces || 0,
+        items: {
+          update:
+            parcel?.map((item) => ({
+              where: { id: item.parcelId },
+              data: { pieces: item.pieces },
+            })) || order.items,
+        },
         recepientName: recepientName || order.recepientName || "",
         recepientNumber: recepientNumber || order.recepientNumber || "",
         additionalInfo: additionalInfo || order.additionalInfo || null,

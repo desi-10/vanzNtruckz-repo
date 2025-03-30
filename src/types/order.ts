@@ -1,16 +1,24 @@
 import { z } from "zod";
 
+const orderItems = z.object({
+  parcelId: z.string().min(1),
+  pieces: z.coerce.number().min(1),
+});
+
 export const OrderSchema = z.object({
   pickUpPoint: z.string().min(1, "Pick up address is required"),
   dropOffPoint: z.string().min(1, "Drop off address is required"),
   vehicleId: z.string().min(1, "Vehicle type is required"),
-  parcelId: z.string().min(1, "Parcel type is required"),
-  pieces: z.coerce.number().min(1, "Pieces is required"),
+  parcel: z.array(orderItems),
   imageOne: z.union([
     z.instanceof(File).optional().nullable(),
     z.string().base64().optional().nullable(),
   ]),
   imageTwo: z.union([
+    z.instanceof(File).optional().nullable(),
+    z.string().base64().optional().nullable(),
+  ]),
+  imageThree: z.union([
     z.instanceof(File).optional().nullable(),
     z.string().base64().optional().nullable(),
   ]),

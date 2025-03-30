@@ -200,11 +200,9 @@ model Order {
 
   pickUpPoint     String
   dropOffPoint    String
-  pieces          Int
   imageOne        Json?
   imageTwo        Json?
   imageThree      Json?
-  parcelId        String
   recepientName   String
   recepientNumber String
   additionalInfo  String?
@@ -213,6 +211,7 @@ model Order {
   transaction    Transaction?
   driverSnapshot Json?
 
+  items OrderItem[]
   bids  Bid[]
   inbox Inbox[]
 
@@ -220,10 +219,20 @@ model Order {
   updatedAt DateTime @updatedAt
 
   customer User     @relation(fields: [customerId], references: [id])
-  Parcel   Parcel   @relation(fields: [parcelId], references: [id])
   driver   Driver?  @relation(fields: [driverId], references: [userId])
   coupon   Coupon?  @relation(fields: [couponId], references: [id])
   vehicle  Vehicle? @relation(fields: [vehicleId], references: [id])
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  parcelId  String
+  pieces    Int
+  Parcel    Parcel   @relation(fields: [parcelId], references: [id])
+  Order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Transaction {
@@ -304,5 +313,5 @@ model Parcel {
   description String?
   isActive    Boolean @default(true)
 
-  orders Order[]
+  OrderItem OrderItem[]
 }

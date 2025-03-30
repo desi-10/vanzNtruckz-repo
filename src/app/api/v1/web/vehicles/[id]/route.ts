@@ -89,7 +89,7 @@ export const PATCH = async (
       );
     }
 
-    const { name, type, weight, isActive, image } = parsedData.data;
+    const { name, weight, isActive, image } = parsedData.data;
 
     const existingVehicle = await prisma.vehicle.findUnique({
       where: { name },
@@ -118,7 +118,6 @@ export const PATCH = async (
       },
       data: {
         name,
-        type,
         weight,
         isActive,
         image: uploadResult || undefined,

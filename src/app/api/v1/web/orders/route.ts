@@ -63,10 +63,10 @@ export const POST = async (request: Request) => {
       pickUpPoint: body.get("pickUpPoint") as string,
       dropOffPoint: body.get("dropOffPoint") as string,
       vehicleId: body.get("vehicleId") as string,
-      parcelType: body.get("parcelType") as string,
-      pieces: body.get("pieces") as string,
+      parcel: body.get("parcel") as string,
       image: body.get("imageOne") as string,
       imageTwo: body.get("imageTwo") as string,
+      imageThree: body.get("imageThree") as string,
       recepientName: body.get("recepientName") as string,
       recepientNumber: body.get("recepientNumber") as string,
       additionalInfo: body.get("additionalInfo") as string,
@@ -85,10 +85,10 @@ export const POST = async (request: Request) => {
       pickUpPoint,
       dropOffPoint,
       vehicleId,
-      parcelId,
-      pieces,
+      parcel,
       imageOne,
       imageTwo,
+      imageThree,
       recepientName,
       recepientNumber,
       additionalInfo,
@@ -97,6 +97,7 @@ export const POST = async (request: Request) => {
 
     let uploadResult = null;
     let uploadResultTwo = null;
+    let uploadResultThree = null;
 
     if (imageOne) {
       uploadResult = await uploadFile("orders", imageOne as string);
@@ -104,6 +105,10 @@ export const POST = async (request: Request) => {
 
     if (imageTwo) {
       uploadResultTwo = await uploadFile("orders", imageTwo as string);
+    }
+
+    if (imageThree) {
+      uploadResultThree = await uploadFile("orders", imageThree as string);
     }
 
     // Run all database operations in a Prisma transaction
@@ -115,10 +120,15 @@ export const POST = async (request: Request) => {
           pickUpPoint,
           dropOffPoint,
           vehicleId: vehicleId,
-          parcelId,
-          pieces,
+          items: {
+            create: parcel.map((item) => ({
+              parcelId: item.parcelId,
+              pieces: item.pieces,
+            })),
+          },
           imageOne: uploadResult || undefined,
           imageTwo: uploadResultTwo || undefined,
+          imageThree: uploadResultThree || undefined,
           recepientName,
           recepientNumber,
           additionalInfo,

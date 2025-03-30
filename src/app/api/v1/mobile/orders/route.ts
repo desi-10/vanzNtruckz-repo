@@ -1,24 +1,10 @@
 import { prisma } from "@/lib/db";
-import { z } from "zod";
 import { NextResponse } from "next/server";
 import { validateJWT } from "@/utils/jwt";
 import { uploadFile } from "@/utils/cloudinary";
+import { OrderSchema } from "@/types/order";
 // import { sendAdminNotification } from "@/config/firebase";
 // import { scheduleNotification } from "@/utils/scheduler";
-
-const OrderSchema = z.object({
-  pickUpPoint: z.string().min(1, "Pick up address is required"),
-  dropOffPoint: z.string().min(1, "Drop off address is required"),
-  vehicleId: z.string().min(1, "Vehicle type is required"),
-  parcelId: z.string().min(1, "Parcel type is required"),
-  pieces: z.coerce.number().min(1, "Pieces is required"),
-  imageOne: z.union([z.string().base64(), z.instanceof(File)]).nullish(),
-  imageTwo: z.union([z.string().base64(), z.instanceof(File)]).nullish(),
-  recepientName: z.string().min(1, "Recipient name is required"),
-  recepientNumber: z.string().min(1, "Recipient number is required"),
-  additionalInfo: z.string().nullish(),
-  couponId: z.string().nullish(),
-});
 
 /** ✅ GET - Fetch Paginated Orders */
 export const GET = async (request: Request) => {
@@ -98,13 +84,14 @@ export const POST = async (request: Request) => {
       pickUpPoint: body.get("pickUpPoint") as string,
       dropOffPoint: body.get("dropOffPoint") as string,
       vehicleId: body.get("vehicleId") as string,
-      parcelId: body.get("parcelId") as string,
-      pieces: body.get("pieces") as string,
-      image: body.get("image") as string,
+      parcel: body.get("parcel") as string,
+      imageOne: body.get("imageOne") as string,
+      imageTwo: body.get("imageTwo") as string,
+      imageThree: body.get("imageThree") as string,
       recepientName: body.get("recepientName") as string,
       recepientNumber: body.get("recepientNumber") as string,
       additionalInfo: body.get("additionalInfo") as string,
-      couponId: body.get("couponId") as string,
+      coupon: body.get("coupon") as string,
     });
 
     if (!parsedData.success) {
@@ -118,18 +105,19 @@ export const POST = async (request: Request) => {
       pickUpPoint,
       dropOffPoint,
       vehicleId,
-      parcelId,
-      pieces,
+      parcel,
       imageOne,
       imageTwo,
+      imageThree,
       recepientName,
       recepientNumber,
       additionalInfo,
-      couponId,
+      coupon,
     } = parsedData.data;
 
     let uploadResult = null;
     let uploadResultTwo = null;
+    let uploadResultThree = null;
 
     if (imageOne) {
       uploadResult = await uploadFile("orders", imageOne as string);
@@ -137,6 +125,10 @@ export const POST = async (request: Request) => {
 
     if (imageTwo) {
       uploadResultTwo = await uploadFile("orders", imageTwo as string);
+    }
+
+    if (imageThree) {
+      uploadResultThree = await uploadFile("orders", imageThree as string);
     }
 
     // Run all database operations in a Prisma transaction
@@ -148,14 +140,19 @@ export const POST = async (request: Request) => {
           pickUpPoint,
           dropOffPoint,
           vehicleId: vehicleId || "",
-          parcelId: parcelId || "",
-          pieces,
+          items: {
+            create: parcel.map((item) => ({
+              parcelId: item.parcelId,
+              pieces: item.pieces,
+            })),
+          },
           imageOne: uploadResult || undefined,
           imageTwo: uploadResultTwo || undefined,
+          imageThree: uploadResultThree || undefined,
           recepientName,
           recepientNumber,
           additionalInfo,
-          couponId: couponId || null,
+          couponId: coupon || null,
           status: "PENDING",
         },
         include: { customer: { select: { id: true, name: true } } },
