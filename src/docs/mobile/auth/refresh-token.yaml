@@ -1,0 +1,72 @@
+paths:
+  /api/auth/mobile/refresh-token:
+    post:
+      summary: Refresh Access Token
+      description: Generates a new access token using a valid refresh token.
+      tags: ["Auth"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: "your-refresh-token"
+                  description: "A valid refresh token to get a new access token"
+      responses:
+        "200":
+          description: Successfully generated a new access token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "New access token generated successfully"
+                  accessToken:
+                    type: string
+                    example: "your-new-access-token"
+        "400":
+          description: Invalid request or refresh token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid refresh token"
+                  errors:
+                    type: object
+        "401":
+          description: Expired or invalid refresh token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid or expired refresh token"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal server error"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

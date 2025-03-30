@@ -1,0 +1,307 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CUSTOMER
+  DRIVER
+}
+
+enum DispatchStatus {
+  ASSIGNED
+  IN_TRANSIT
+  DELIVERED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum PaymentOption {
+  CASH
+  CARD
+  MOBILE_MONEY
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum VehicleType {
+  FLATBACK
+  PICKUP
+}
+
+enum InboxType {
+  BID
+  ORDER
+  DISPATCH
+  DELIVERY
+  PICKUP
+  RETURN
+  CANCEL
+}
+
+model User {
+  id                    String                @id @default(cuid())
+  name                  String
+  phone                 String?               @unique
+  email                 String?               @unique
+  address               String?
+  emailVerified         DateTime?
+  phoneVerified         DateTime?
+  image                 Json?
+  password              String?
+  role                  UserRole              @default(CUSTOMER)
+  fcmToken              String?
+  isTwoFactorEnabled    Boolean               @default(false)
+  twoFactorConfirmation TwoFactorConfimation?
+
+  accounts      Account[]
+  orders        Order[]
+  driverProfile Driver?
+  transactions  Transaction[]
+  inbox         Inbox[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  email   String?
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String
+  otp     String   @unique
+  expires DateTime
+
+  @@unique([email, otp])
+}
+
+model PhoneOTP {
+  id      String   @id @default(cuid())
+  phone   String   @unique
+  otp     String   @unique
+  expires DateTime
+
+  @@unique([phone, otp])
+}
+
+model EmailOTP {
+  id      String   @id @default(cuid())
+  email   String   @unique
+  otp     String   @unique
+  expires DateTime
+
+  @@unique([email, otp])
+}
+
+model IdOTP {
+  id      String   @unique
+  otp     String   @unique
+  expires DateTime
+
+  @@unique([id, otp])
+}
+
+model TwoFactorConfimation {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Driver {
+  userId    String  @id
+  license   String? @unique
+  vehicleId String?
+  isActive  Boolean @default(true)
+
+  profilePicture     Json? // Store { url, id } object
+  carPicture         Json?
+  numberPlate        String?   @unique
+  numberPlatePicture Json?
+  licensePicture     Json?
+  licenseExpiry      DateTime?
+  roadworthyNumber   String?
+  roadworthySticker  Json?
+  roadworthyExpiry   DateTime?
+  insuranceSticker   Json?
+  insurance          String?
+  insuranceExpiry    DateTime?
+  ghanaCard          String?
+  ghanaCardPicture   Json?
+  kycStatus          KycStatus @default(PENDING)
+
+  orders Order[]
+  bids   Bid[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+}
+
+model Order {
+  id         String  @id @default(cuid())
+  customerId String
+  vehicleId  String
+  driverId   String?
+  couponId   String?
+
+  pickUpPoint     String
+  dropOffPoint    String
+  pieces          Int
+  imageOne        Json?
+  imageTwo        Json?
+  parcelId        String
+  recepientName   String
+  recepientNumber String
+  additionalInfo  String?
+
+  status         OrderStatus  @default(PENDING)
+  transaction    Transaction?
+  driverSnapshot Json?
+
+  bids  Bid[]
+  inbox Inbox[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customer User     @relation(fields: [customerId], references: [id])
+  Parcel   Parcel   @relation(fields: [parcelId], references: [id])
+  driver   Driver?  @relation(fields: [driverId], references: [userId])
+  coupon   Coupon?  @relation(fields: [couponId], references: [id])
+  vehicle  Vehicle? @relation(fields: [vehicleId], references: [id])
+}
+
+model Transaction {
+  id            String        @id @default(cuid())
+  orderId       String        @unique
+  customerId    String
+  amount        Float
+  paymentMethod PaymentOption @default(CASH)
+  status        PaymentStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order    Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer User  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model Bid {
+  id       String    @id @default(cuid())
+  orderId  String
+  driverId String
+  amount   Float
+  status   BidStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  driver Driver @relation(fields: [driverId], references: [userId], onDelete: Cascade)
+}
+
+model Inbox {
+  id      String    @id @default(cuid())
+  userId  String
+  orderId String?
+  message String
+  isRead  Boolean   @default(false)
+  type    InboxType @default(BID)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order Order? @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  user  User   @relation(fields: [userId], references: [id])
+}
+
+model Coupon {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  discount  Float
+  isDefault Boolean  @default(false)
+  isActive  Boolean  @default(false)
+  expiry    DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+}
+
+model Vehicle {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  weight      Float?
+  description String?
+  isActive    Boolean @default(true)
+  image       Json?
+
+  orders    Order[]
+  drivers   Driver[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Parcel {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  orders Order[]
+}

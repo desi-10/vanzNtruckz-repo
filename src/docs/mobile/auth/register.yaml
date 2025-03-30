@@ -1,0 +1,70 @@
+paths:
+  /api/auth/mobile/register:
+    post:
+      summary: User Registration
+      description: Registers a new user after OTP verification.
+      tags: ["Auth"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  example: "user@example.com"
+                  description: "Email or phone number"
+                password:
+                  type: string
+                  example: "password123"
+                  description: "User password (min. 6 characters)"
+                name:
+                  type: string
+                  example: "John Doe"
+                  description: "User's full name"
+                otp:
+                  type: string
+                  example: "1234"
+                  description: "4-digit OTP for verification"
+                role:
+                  type: string
+                  enum: ["CUSTOMER", "DRIVER"]
+                  default: "CUSTOMER"
+                  example: "CUSTOMER"
+      responses:
+        "201":
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User registered successfully."
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "clxyz123abc"
+                      name:
+                        type: string
+                        example: "John Doe"
+
+        "400":
+          description: Invalid input format or missing fields.
+        "401":
+          description: Unauthorized - Invalid OTP or OTP expired.
+        "409":
+          description: Conflict - User already exists.
+        "500":
+          description: Internal Server Error.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

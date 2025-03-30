@@ -1,0 +1,149 @@
+paths:
+  /api/v1/mobile/drivers:
+    get:
+      summary: Get Driver Profile
+      description: Retrieves the profile of the authenticated driver.
+      tags: ["Driver"]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Driver profile retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Driver retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "clx12345xyz"
+                      name:
+                        type: string
+                        example: "John Doe"
+                      email:
+                        type: string
+                        example: "john@example.com"
+                      phone:
+                        type: string
+                        example: "0244123456"
+                      image:
+                        type: string
+                        example: "https://cloudinary.com/john-profile.jpg"
+                      role:
+                        type: string
+                        example: "DRIVER"
+                      address:
+                        type: string
+                        example: "Accra, Ghana"
+                      emailVerified:
+                        type: boolean
+                        example: true
+                      phoneVerified:
+                        type: boolean
+                        example: true
+        "401":
+          description: Unauthorized - Invalid or missing token.
+        "404":
+          description: Driver not found.
+        "500":
+          description: Internal Server Error.
+
+    patch:
+      summary: Update Driver Profile
+      description: Updates the authenticated driver's profile.
+      tags: ["Driver"]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                  example: "0244123456"
+                profilePicture:
+                  type: string
+                  format: binary
+                carPicture:
+                  type: string
+                  format: binary
+                vehicleType:
+                  type: string
+                  example: "Sedan"
+                numberPlate:
+                  type: string
+                  example: "GR-1234-22"
+                numberPlatePicture:
+                  type: string
+                  format: binary
+                license:
+                  type: string
+                  example: "DL-98765"
+                licensePicture:
+                  type: string
+                  format: binary
+                licenseExpiry:
+                  type: string
+                  format: date
+                  example: "2026-05-15"
+                roadworthyNumber:
+                  type: string
+                  example: "RW-54321"
+                roadworthySticker:
+                  type: string
+                  format: binary
+                roadworthyExpiry:
+                  type: string
+                  format: date
+                  example: "2025-12-31"
+                insuranceSticker:
+                  type: string
+                  format: binary
+                insurance:
+                  type: string
+                  example: "XYZ Insurance Ltd."
+                insuranceExpiry:
+                  type: string
+                  format: date
+                  example: "2025-08-10"
+                ghanaCard:
+                  type: string
+                  example: "GHA-1234567890"
+                ghanaCardPicture:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Driver profile updated successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Driver profile updated successfully"
+        "400":
+          description: Invalid data.
+        "401":
+          description: Unauthorized - Invalid or missing token.
+        "409":
+          description: Conflict - Phone number, license, or number plate already in use.
+        "500":
+          description: Internal Server Error.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

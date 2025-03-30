@@ -1,0 +1,80 @@
+paths:
+  /api/v1/mobile/drivers/status:
+    get:
+      summary: Get Driver KYC Status
+      description: Retrieves the KYC status of the authenticated driver.
+      tags: ["Driver"]
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: KYC status retrieved successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "KYC status retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      profilePicture:
+                        type: boolean
+                        example: true
+                      carPicture:
+                        type: boolean
+                        example: true
+                      phoneNumber:
+                        type: boolean
+                        example: true
+                      vehicleType:
+                        type: boolean
+                        example: true
+                      numberPlate:
+                        type: boolean
+                        example: true
+                      numberPlatePicture:
+                        type: boolean
+                        example: true
+                      license:
+                        type: boolean
+                        example: true
+                      licensePicture:
+                        type: boolean
+                        example: true
+                      licenseExpiry:
+                        type: boolean
+                        example: true
+                      roadworthySticker:
+                        type: boolean
+                        example: true
+                      roadworthyExpiry:
+                        type: boolean
+                        example: true
+                      insuranceSticker:
+                        type: boolean
+                        example: true
+                      insurance:
+                        type: boolean
+                        example: true
+                      ghanaCard:
+                        type: boolean
+                        example: true
+                      ghanaCardPicture:
+                        type: boolean
+                        example: true
+        "401":
+          description: Unauthorized - Invalid or missing token.
+        "404":
+          description: Driver not found.
+        "500":
+          description: Internal Server Error.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

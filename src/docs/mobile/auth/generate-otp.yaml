@@ -1,0 +1,46 @@
+paths:
+  /api/auth/mobile/otp-generation:
+    post:
+      summary: Request OTP
+      description: Sends a One-Time Password (OTP) to the user's email or phone for verification.
+      tags: ["Auth"]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  example: "user@example.com"
+                  description: "Email or phone number to receive OTP"
+                route:
+                  type: string
+                  nullable: true
+                  example: "reset-password"
+                  description: "Optional route (e.g., 'reset-password' for password recovery)"
+      responses:
+        "200":
+          description: OTP sent successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "OTP sent successfully"
+        "400":
+          description: Invalid input (e.g., incorrect email or phone format).
+        "404":
+          description: User not found (if using the 'reset-password' route).
+        "500":
+          description: Internal server error.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
