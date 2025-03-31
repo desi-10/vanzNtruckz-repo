@@ -63,7 +63,7 @@ export const POST = async (request: Request) => {
       pickUpPoint: body.get("pickUpPoint") as string,
       dropOffPoint: body.get("dropOffPoint") as string,
       vehicleId: body.get("vehicleId") as string,
-      parcel: body.get("parcel") as string,
+      parcel: JSON.parse((body.get("parcel") as string) || "[]"),
       image: body.get("imageOne") as string,
       imageTwo: body.get("imageTwo") as string,
       imageThree: body.get("imageThree") as string,
