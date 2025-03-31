@@ -333,7 +333,7 @@ export const PATCH = async (request: Request) => {
           ghanaCard: validate.data.ghanaCard || null,
           numberPlate: validate.data.numberPlate || null,
           license: validate.data.license || null,
-          vehicle: { connect: { id: validate.data.vehicleId } },
+          vehicle: { connect: { id: validate.data.vehicleId || "" } },
           licenseExpiry: validate.data.licenseExpiry
             ? new Date(validate.data.licenseExpiry)
             : null,
