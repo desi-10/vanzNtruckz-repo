@@ -202,9 +202,11 @@ export const PATCH = async (
               profilePicture:
                 profilePictureUpload?.url ||
                 user.driverProfile?.profilePicture ||
-                {},
+                undefined,
               carPicture:
-                carPictureUpload?.url || user.driverProfile?.carPicture || {},
+                carPictureUpload?.url ||
+                user.driverProfile?.carPicture ||
+                undefined,
               insurance: insurance || user.driverProfile?.insurance || null,
               ghanaCard: ghanaCard || user.driverProfile?.ghanaCard || null,
               license: license || user.driverProfile?.license || null,
@@ -218,31 +220,33 @@ export const PATCH = async (
               licensePicture:
                 licensePictureUpload?.url ||
                 user.driverProfile?.licensePicture ||
-                {},
+                undefined,
               numberPlatePicture:
                 numberPlatePictureUpload?.url ||
                 user.driverProfile?.numberPlatePicture ||
-                {},
+                undefined,
               roadworthySticker:
                 roadworthyStickerUpload?.url ||
                 user.driverProfile?.roadworthySticker ||
-                {},
+                undefined,
               insuranceSticker:
                 insuranceStickerUpload?.url ||
                 user.driverProfile?.insuranceSticker ||
-                {},
+                undefined,
               ghanaCardPicture:
                 ghanaCardPictureUpload?.url ||
                 user.driverProfile?.ghanaCardPicture ||
-                {},
+                undefined,
             },
             update: {
               profilePicture:
                 profilePictureUpload?.url ||
                 user.driverProfile?.profilePicture ||
-                {},
+                undefined,
               carPicture:
-                carPictureUpload?.url || user.driverProfile?.carPicture || {},
+                carPictureUpload?.url ||
+                user.driverProfile?.carPicture ||
+                undefined,
               insurance: insurance || user.driverProfile?.insurance || null,
               ghanaCard: ghanaCard || user.driverProfile?.ghanaCard || null,
               license: license || user.driverProfile?.license || null,
@@ -266,23 +270,23 @@ export const PATCH = async (
               licensePicture:
                 licensePictureUpload?.url ||
                 user.driverProfile?.licensePicture ||
-                {},
+                undefined,
               numberPlatePicture:
                 numberPlatePictureUpload?.url ||
                 user.driverProfile?.numberPlatePicture ||
-                {},
+                undefined,
               roadworthySticker:
                 roadworthyStickerUpload?.url ||
                 user.driverProfile?.roadworthySticker ||
-                {},
+                undefined,
               insuranceSticker:
                 insuranceStickerUpload?.url ||
                 user.driverProfile?.insuranceSticker ||
-                {},
+                undefined,
               ghanaCardPicture:
                 ghanaCardPictureUpload?.url ||
                 user.driverProfile?.ghanaCardPicture ||
-                {},
+                undefined,
             },
           },
         },
