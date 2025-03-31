@@ -55,7 +55,7 @@ const UpdateDriverSchema = z.object({
   phoneNumber: z.string().length(10, "Invalid phone number").nullish(),
   profilePicture: z.string().base64().nullish(),
   carPicture: z.string().base64().nullish(),
-  vehicleId: z.string().min(1, ""),
+  vehicleId: z.string().nullish(),
   numberPlate: z.string().nullish(),
   numberPlatePicture: z.string().base64().nullish(),
   license: z.string().nullish(),
