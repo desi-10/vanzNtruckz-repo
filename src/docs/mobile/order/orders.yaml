@@ -72,7 +72,14 @@ paths:
                 vehicleId:
                   type: string
                 parcel:
-                  type: string
+                  type: Array
+                  items:
+                    type: object
+                    properties:
+                      parcelId:
+                        type: string
+                      pieces:
+                        type: number
                 imageOne:
                   type: string
                   format: binary

@@ -206,6 +206,8 @@ model Order {
   recepientName   String
   recepientNumber String
   additionalInfo  String?
+  scheduleDate    DateTime?
+  isScheduled     Boolean   @default(false)
 
   status         OrderStatus  @default(PENDING)
   transaction    Transaction?
