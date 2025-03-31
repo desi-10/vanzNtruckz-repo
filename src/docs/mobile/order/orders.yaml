@@ -54,6 +54,8 @@ paths:
     post:
       summary: Create an order
       description: Creates a new order for the authenticated user
+      tags:
+        - Orders
       security:
         - BearerAuth: []
       requestBody:
