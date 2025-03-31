@@ -291,7 +291,9 @@ export const PATCH = async (request: Request) => {
             null,
           license: validate.data.license || user.driverProfile?.license || null,
           vehicleId:
-            validate.data.vehicleId || user.driverProfile?.vehicleId || "",
+            validate.data.vehicleId ||
+            user.driverProfile?.vehicleId ||
+            undefined,
           licenseExpiry: validate.data.licenseExpiry
             ? new Date(validate.data.licenseExpiry)
             : user.driverProfile?.licenseExpiry,
@@ -333,7 +335,7 @@ export const PATCH = async (request: Request) => {
           ghanaCard: validate.data.ghanaCard || null,
           numberPlate: validate.data.numberPlate || null,
           license: validate.data.license || null,
-          vehicle: { connect: { id: validate.data.vehicleId || "" } },
+          vehicle: { connect: { id: validate.data.vehicleId || undefined } },
           licenseExpiry: validate.data.licenseExpiry
             ? new Date(validate.data.licenseExpiry)
             : null,
