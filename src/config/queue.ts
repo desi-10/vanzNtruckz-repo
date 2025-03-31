@@ -2,7 +2,7 @@ import { Queue, Worker, Job } from "bullmq";
 import IORedis from "ioredis";
 
 // Initialize Redis connection with Vercel Redis
-const redisConnection = new IORedis(process.env.UPSTASH_REDIS_URL!, {
+const redisConnection = new IORedis(process.env.REDIS_URL!, {
   maxRetriesPerRequest: null,
 });
 
