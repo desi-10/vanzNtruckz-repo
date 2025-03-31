@@ -271,6 +271,8 @@ export const PATCH = async (request: Request) => {
 
     console.log(validate.data.vehicleId, "vehicleId");
 
+    console.log(profilePicture, "profilePicture");
+
     const result = await prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: user.id },
@@ -358,6 +360,8 @@ export const PATCH = async (request: Request) => {
         },
       });
     });
+
+    console.log(result, "result");
 
     return NextResponse.json(
       { message: "Driver updated successfully", data: result },
