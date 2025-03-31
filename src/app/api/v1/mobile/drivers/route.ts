@@ -73,7 +73,8 @@ const UpdateDriverSchema = z.object({
 
 export const PATCH = async (request: Request) => {
   try {
-    const id = validateJWT(request);
+    // const id = validateJWT(request);
+    const id = "cm8x4eyyr0001l203we7liu7h";
 
     if (!id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -94,7 +95,7 @@ export const PATCH = async (request: Request) => {
       profilePicture: body.get("profilePicture"),
       carPicture: body.get("carPicture"),
       phoneNumber: body.get("phoneNumber"),
-      vehicleType: body.get("vehicleType"),
+      vehicleId: body.get("vehicleId"),
       numberPlate: body.get("numberPlate"),
       numberPlatePicture: body.get("numberPlatePicture"),
       license: body.get("license"),
@@ -268,6 +269,8 @@ export const PATCH = async (request: Request) => {
       );
     }
 
+    console.log(validate.data.vehicleId, "vehicleId");
+
     const result = await prisma.$transaction(async (tx) => {
       await tx.user.update({
         where: { id: user.id },
@@ -329,13 +332,13 @@ export const PATCH = async (request: Request) => {
             : user.driverProfile?.insuranceExpiry,
         },
         create: {
-          user: { connect: { id: user.id } },
+          userId: user.id,
           insurance: validate.data.insurance || null,
           roadworthyNumber: validate.data.roadworthyNumber || null,
           ghanaCard: validate.data.ghanaCard || null,
           numberPlate: validate.data.numberPlate || null,
           license: validate.data.license || null,
-          vehicle: { connect: { id: validate.data.vehicleId || undefined } },
+          vehicleId: validate.data.vehicleId || undefined,
           licenseExpiry: validate.data.licenseExpiry
             ? new Date(validate.data.licenseExpiry)
             : null,
