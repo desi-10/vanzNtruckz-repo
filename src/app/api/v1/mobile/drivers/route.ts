@@ -271,7 +271,9 @@ export const PATCH = async (request: Request) => {
 
     console.log(validate.data.vehicleId, "vehicleId");
 
-    console.log(profilePicture, "profilePicture");
+    console.log(validate.data.profilePicture, "profilePicture");
+
+    console.log(profilePicture, "updatedProfilePicture");
 
     const result = await prisma.$transaction(async (tx) => {
       await tx.user.update({
