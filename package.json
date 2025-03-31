@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "ts-node scripts/convertYaml.ts",
+    "prebuild": "ts-node -P src/scripts/tsconfig.json src/scripts/convert-yaml.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

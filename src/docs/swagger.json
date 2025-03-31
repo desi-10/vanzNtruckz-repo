@@ -1,0 +1,1012 @@
+{
+  "paths": {
+    "/api/auth/mobile/forgot-password": {
+      "post": {
+        "summary": "Reset Password with OTP",
+        "description": "Resets the user's password after verifying the OTP sent to their email or phone number.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "identifier",
+                  "otp",
+                  "password"
+                ],
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "example": "user@example.com",
+                    "description": "The user's email or phone number."
+                  },
+                  "otp": {
+                    "type": "string",
+                    "example": "1234",
+                    "description": "The 4-digit OTP sent to the user."
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "NewSecurePassword123",
+                    "description": "The new password (minimum 6 characters)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password reset successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or identifier format.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Please enter a valid email or phone number."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired OTP.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid OTP or OTP expired."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User not found."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal server error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mobile/otp-generation": {
+      "post": {
+        "summary": "Request OTP",
+        "description": "Sends a One-Time Password (OTP) to the user's email or phone for verification.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "example": "user@example.com",
+                    "description": "Email or phone number to receive OTP"
+                  },
+                  "route": {
+                    "type": "string",
+                    "nullable": true,
+                    "example": "reset-password",
+                    "description": "Optional route (e.g., 'reset-password' for password recovery)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "OTP sent successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (e.g., incorrect email or phone format)."
+          },
+          "404": {
+            "description": "User not found (if using the 'reset-password' route)."
+          },
+          "500": {
+            "description": "Internal server error."
+          }
+        }
+      }
+    },
+    "/api/auth/mobile/login": {
+      "post": {
+        "summary": "User Login",
+        "description": "Authenticates a user and returns a JWT token.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "example": "user@example.com",
+                    "description": "Email or phone number"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123",
+                    "description": "User password (min. 6 characters)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Login successful"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "clxyz123abc"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "user@example.com"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "+233501234567"
+                        },
+                        "address": {
+                          "type": "string",
+                          "example": "Accra, Ghana"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "USER",
+                            "DRIVER",
+                            "ADMIN"
+                          ],
+                          "example": "DRIVER"
+                        },
+                        "image": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": "https://yourapi.com/uploads/profile.jpg"
+                        },
+                        "driverProfile": {
+                          "type": "object",
+                          "nullable": true,
+                          "properties": {
+                            "kycStatus": {
+                              "type": "string",
+                              "example": "VERIFIED"
+                            },
+                            "isActive": {
+                              "type": "boolean",
+                              "example": true
+                            }
+                          }
+                        },
+                        "accessToken": {
+                          "type": "string",
+                          "example": "eyJhbGciOiJIUzI1..."
+                        },
+                        "refreshToken": {
+                          "type": "string",
+                          "example": "eyJhbGciOiJIUzI1..."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input format or missing fields."
+          },
+          "401": {
+            "description": "Unauthorized - Invalid credentials."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/api/auth/mobile/refresh-token": {
+      "post": {
+        "summary": "Refresh Access Token",
+        "description": "Generates a new access token using a valid refresh token.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "refreshToken"
+                ],
+                "properties": {
+                  "refreshToken": {
+                    "type": "string",
+                    "example": "your-refresh-token",
+                    "description": "A valid refresh token to get a new access token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully generated a new access token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "New access token generated successfully"
+                    },
+                    "accessToken": {
+                      "type": "string",
+                      "example": "your-new-access-token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or refresh token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid refresh token"
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Expired or invalid refresh token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid or expired refresh token"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mobile/register": {
+      "post": {
+        "summary": "User Registration",
+        "description": "Registers a new user after OTP verification.",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "example": "user@example.com",
+                    "description": "Email or phone number"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123",
+                    "description": "User password (min. 6 characters)"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "John Doe",
+                    "description": "User's full name"
+                  },
+                  "otp": {
+                    "type": "string",
+                    "example": "1234",
+                    "description": "4-digit OTP for verification"
+                  },
+                  "role": {
+                    "type": "string",
+                    "enum": [
+                      "CUSTOMER",
+                      "DRIVER"
+                    ],
+                    "default": "CUSTOMER",
+                    "example": "CUSTOMER"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User registered successfully."
+                    },
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "clxyz123abc"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input format or missing fields."
+          },
+          "401": {
+            "description": "Unauthorized - Invalid OTP or OTP expired."
+          },
+          "409": {
+            "description": "Conflict - User already exists."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/api/v1/mobile/customers": {
+      "get": {
+        "summary": "Retrieve a customer",
+        "description": "Fetches the customer details based on the provided JWT token.",
+        "tags": [
+          "Customer"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved customer data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Customer retrieved successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "user123"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "johndoe@example.com"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "+1234567890"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "CUSTOMER"
+                        },
+                        "address": {
+                          "type": "string",
+                          "example": "123 Main St, City"
+                        },
+                        "image": {
+                          "type": "string",
+                          "example": "https://example.com/profile.jpg"
+                        },
+                        "emailVerified": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "phoneVerified": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Customer not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update customer details",
+        "description": "Updates customer details such as email, phone, name, address, and profile image.",
+        "tags": [
+          "Customer"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "newemail@example.com"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "+1234567890"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "New Name"
+                  },
+                  "address": {
+                    "type": "string",
+                    "example": "456 New Street, City"
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "base64",
+                    "example": "data:image/png;base64,iVBORw0KGgoAAAANS..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated customer details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Customer updated successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "user123"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "New Name"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "newemail@example.com"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "+1234567890"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "CUSTOMER"
+                        },
+                        "address": {
+                          "type": "string",
+                          "example": "456 New Street, City"
+                        },
+                        "image": {
+                          "type": "string",
+                          "example": "https://example.com/new-profile.jpg"
+                        },
+                        "emailVerified": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "phoneVerified": {
+                          "type": "boolean",
+                          "example": false
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data format"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/v1/mobile/drivers": {
+      "get": {
+        "summary": "Get Driver Profile",
+        "description": "Retrieves the profile of the authenticated driver.",
+        "tags": [
+          "Driver"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Driver profile retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Driver retrieved successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "clx12345xyz"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "email": {
+                          "type": "string",
+                          "example": "john@example.com"
+                        },
+                        "phone": {
+                          "type": "string",
+                          "example": "0244123456"
+                        },
+                        "image": {
+                          "type": "string",
+                          "example": "https://cloudinary.com/john-profile.jpg"
+                        },
+                        "role": {
+                          "type": "string",
+                          "example": "DRIVER"
+                        },
+                        "address": {
+                          "type": "string",
+                          "example": "Accra, Ghana"
+                        },
+                        "emailVerified": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "phoneVerified": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token."
+          },
+          "404": {
+            "description": "Driver not found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update Driver Profile",
+        "description": "Updates the authenticated driver's profile.",
+        "tags": [
+          "Driver"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "phoneNumber": {
+                    "type": "string",
+                    "example": "0244123456"
+                  },
+                  "profilePicture": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "carPicture": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "vehicleType": {
+                    "type": "string",
+                    "example": "Sedan"
+                  },
+                  "numberPlate": {
+                    "type": "string",
+                    "example": "GR-1234-22"
+                  },
+                  "numberPlatePicture": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "license": {
+                    "type": "string",
+                    "example": "DL-98765"
+                  },
+                  "licensePicture": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "licenseExpiry": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-05-15"
+                  },
+                  "roadworthyNumber": {
+                    "type": "string",
+                    "example": "RW-54321"
+                  },
+                  "roadworthySticker": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "roadworthyExpiry": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-12-31"
+                  },
+                  "insuranceSticker": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "insurance": {
+                    "type": "string",
+                    "example": "XYZ Insurance Ltd."
+                  },
+                  "insuranceExpiry": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2025-08-10"
+                  },
+                  "ghanaCard": {
+                    "type": "string",
+                    "example": "GHA-1234567890"
+                  },
+                  "ghanaCardPicture": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Driver profile updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Driver profile updated successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid data."
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token."
+          },
+          "409": {
+            "description": "Conflict - Phone number, license, or number plate already in use."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    },
+    "/api/v1/mobile/drivers/status": {
+      "get": {
+        "summary": "Get Driver KYC Status",
+        "description": "Retrieves the KYC status of the authenticated driver.",
+        "tags": [
+          "Driver"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "KYC status retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "KYC status retrieved successfully"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "profilePicture": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "carPicture": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "phoneNumber": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "vehicleType": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "numberPlate": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "numberPlatePicture": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "license": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "licensePicture": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "licenseExpiry": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "roadworthySticker": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "roadworthyExpiry": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "insuranceSticker": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "insurance": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ghanaCard": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "ghanaCardPicture": {
+                          "type": "boolean",
+                          "example": true
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token."
+          },
+          "404": {
+            "description": "Driver not found."
+          },
+          "500": {
+            "description": "Internal Server Error."
+          }
+        }
+      }
+    }
+  }
+}
