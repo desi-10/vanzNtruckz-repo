@@ -3,6 +3,8 @@ paths:
     get:
       summary: Fetch paginated orders
       description: Retrieves a list of orders for the authenticated user
+      tags:
+        - Orders
       security:
         - BearerAuth: []
       responses:
