@@ -62,8 +62,8 @@ export const GET = async (request: Request) => {
 };
 
 export const POST = async (request: Request) => {
-  // const id = validateJWT(request);
-  const id = "cm8s1ygyw0000gdmwdmokbsn8";
+  const id = validateJWT(request);
+  // const id = "cm8s1ygyw0000gdmwdmokbsn8";
 
   if (!id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -114,6 +114,7 @@ export const POST = async (request: Request) => {
       recepientNumber,
       additionalInfo,
       coupon,
+      scheduledDate,
       isScheduled,
     } = parsedData.data;
 
@@ -155,6 +156,7 @@ export const POST = async (request: Request) => {
           recepientNumber,
           additionalInfo,
           couponId: coupon || null,
+          scheduleDate: scheduledDate || null,
           isScheduled: isScheduled || false,
           status: "PENDING",
         },
