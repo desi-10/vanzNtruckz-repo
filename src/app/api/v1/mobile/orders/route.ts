@@ -119,6 +119,35 @@ export const POST = async (request: Request) => {
       isScheduled,
     } = parsedData.data;
 
+    const vehicle = await prisma.vehicle.findUnique({
+      where: {
+        id: vehicleId,
+      },
+    });
+
+    if (!vehicle) {
+      return NextResponse.json({ error: "Vehicle not found" }, { status: 404 });
+    }
+
+    if (vehicle.isActive === false) {
+      return NextResponse.json(
+        { error: "Vehicle is not active" },
+        { status: 404 }
+      );
+    }
+
+    for (const item of parcel) {
+      const foundParcel = await prisma.parcel.findUnique({
+        where: { id: item.parcelId }, // Ensure `id` is unique
+      });
+
+      if (!foundParcel) {
+        throw new Error(`Parcel with ID ${item.parcelId} not found`);
+      }
+
+      console.log(foundParcel);
+    }
+
     let uploadResult = null;
     let uploadResultTwo = null;
     let uploadResultThree = null;

@@ -1117,7 +1117,8 @@
                     "type": "string"
                   },
                   "parcel": {
-                    "type": "Array",
+                    "type": "array",
+                    "description": "JSON stringified array of parcels. Example: '[{\"parcelId\": \"123\", \"pieces\": 2}]'",
                     "items": {
                       "type": "object",
                       "properties": {

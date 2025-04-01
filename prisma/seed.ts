@@ -86,6 +86,36 @@ const main = async () => {
     },
   });
 
+  await prisma.vehicle.upsert({
+    where: { name: "Toyota Hilux" },
+    update: {},
+    create: {
+      name: "Toyota Hilux",
+      weight: 1000.0,
+      description: "A reliable pickup truck for deliveries.",
+      isActive: true,
+      image: {
+        url: "https://example.com/toyota-hilux.jpg",
+        alt: "Toyota Hilux",
+      },
+    },
+  });
+
+  await prisma.vehicle.upsert({
+    where: { name: "Ford Transit" },
+    update: {},
+    create: {
+      name: "Ford Transit",
+      weight: 1500.0,
+      description: "A spacious van for heavy loads.",
+      isActive: true,
+      image: {
+        url: "https://example.com/ford-transit.jpg",
+        alt: "Ford Transit",
+      },
+    },
+  });
+
   console.log("Seed data inserted successfully!");
 };
 
