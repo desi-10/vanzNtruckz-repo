@@ -158,7 +158,7 @@ export const POST = async (request: Request) => {
           additionalInfo,
           couponId: coupon || null,
           scheduleDate: scheduledDate || null,
-          isScheduled: isScheduled || false,
+          isScheduled: isScheduled ? true : false,
           status: "PENDING",
         },
         include: { customer: { select: { id: true, name: true } } },
