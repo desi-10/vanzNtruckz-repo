@@ -92,6 +92,7 @@ export const POST = async (request: Request) => {
       recepientNumber: body.get("recepientNumber") as string,
       additionalInfo: body.get("additionalInfo") as string,
       coupon: body.get("coupon") as string,
+      isScheduled: body.get("isScheduled") as string,
     });
 
     if (!parsedData.success) {
@@ -113,6 +114,7 @@ export const POST = async (request: Request) => {
       recepientNumber,
       additionalInfo,
       coupon,
+      isScheduled,
     } = parsedData.data;
 
     let uploadResult = null;
@@ -153,6 +155,7 @@ export const POST = async (request: Request) => {
           recepientNumber,
           additionalInfo,
           couponId: coupon || null,
+          isScheduled: isScheduled || false,
           status: "PENDING",
         },
         include: { customer: { select: { id: true, name: true } } },

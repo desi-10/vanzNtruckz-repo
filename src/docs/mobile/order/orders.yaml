@@ -97,6 +97,8 @@ paths:
                   type: string
                 coupon:
                   type: string
+                isScheduled:
+                  type: boolean
       responses:
         "200":
           description: Order created successfully
