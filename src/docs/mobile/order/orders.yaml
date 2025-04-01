@@ -97,10 +97,13 @@ paths:
                   type: string
                 coupon:
                   type: string
-                isScheduled:
+                scheduleDate:
                   type: string
                   format: date
                   example: "2025-12-31"
+                isScheduled:
+                  type: boolean
+                  example: true
       responses:
         "200":
           description: Order created successfully
