@@ -92,6 +92,7 @@ export const POST = async (request: Request) => {
       recepientNumber: body.get("recepientNumber") as string,
       additionalInfo: body.get("additionalInfo") as string,
       coupon: body.get("coupon") as string,
+      scheduledDate: body.get("scheduledDate") as string,
       isScheduled: body.get("isScheduled") as string,
     });
 
