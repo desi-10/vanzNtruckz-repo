@@ -31,5 +31,7 @@ export const OrderSchema = z.object({
     .default("PENDING")
     .optional(),
   scheduledDate: z.date().nullish(),
-  isScheduled: z.boolean().default(false).nullish(),
+  isScheduled: z
+    .string()
+    .refine((value) => value === "true" || value === "false"),
 });
