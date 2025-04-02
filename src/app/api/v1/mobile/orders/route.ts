@@ -30,6 +30,24 @@ export const GET = async (request: Request) => {
       },
       include: {
         coupon: true,
+        vehicle: {
+          select: {
+            id: true,
+            name: true,
+            isActive: true,
+            image: true,
+          },
+        },
+        items: {
+          include: {
+            Parcel: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
         driver: {
           select: {
             user: {
@@ -93,7 +111,6 @@ export const POST = async (request: Request) => {
       additionalInfo: body.get("additionalInfo") as string,
       coupon: body.get("coupon") as string,
       scheduledDate: body.get("scheduledDate") as string,
-      isScheduled: body.get("isScheduled") as string,
     });
 
     if (!parsedData.success) {
@@ -116,7 +133,6 @@ export const POST = async (request: Request) => {
       additionalInfo,
       coupon,
       scheduledDate,
-      isScheduled,
     } = parsedData.data;
 
     const vehicle = await prisma.vehicle.findUnique({
@@ -187,7 +203,7 @@ export const POST = async (request: Request) => {
           additionalInfo,
           couponId: coupon || null,
           scheduleDate: scheduledDate || null,
-          isScheduled: isScheduled ? true : false,
+          isScheduled: scheduledDate ? true : false,
           status: "PENDING",
         },
         include: { customer: { select: { id: true, name: true } } },
