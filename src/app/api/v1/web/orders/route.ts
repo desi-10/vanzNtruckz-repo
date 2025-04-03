@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { OrderSchema } from "@/types/order";
 import { checkAuth } from "@/utils/check-auth";
@@ -7,42 +6,94 @@ import { NextResponse } from "next/server";
 
 export const GET = async () => {
   try {
-    const session = await auth();
-    if (
-      !session ||
-      !(session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN")
-    ) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const session = await checkAuth();
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
     }
 
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: "desc" },
       include: {
-        customer: {
-          select: {
-            name: true,
-            email: true,
-            phone: true,
-          },
-        },
-        driver: {
-          select: {
-            user: {
+        items: {
+          include: {
+            Parcel: {
               select: {
+                id: true,
                 name: true,
-                phone: true,
               },
             },
           },
         },
+        bids: {
+          include: {
+            driver: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    email: true,
+                  },
+                },
+                vehicle: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        customer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            address: true,
+          },
+        },
+        driver: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                phone: true,
+                email: true,
+              },
+            },
+            vehicle: true,
+          },
+        },
+        vehicle: {
+          select: {
+            id: true,
+            name: true,
+            isActive: true,
+          },
+        },
+        coupon: {
+          select: {
+            id: true,
+            discount: true,
+          },
+        },
       },
     });
-    return NextResponse.json({
-      message: "Orders fetched successfully",
-      data: orders,
-    });
+
+    return NextResponse.json(
+      {
+        message: "Orders fetched successfully",
+        data: orders,
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    console.log("", error);
+    console.error("Error fetching orders:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

@@ -11,21 +11,29 @@ export const GET = async (
   try {
     const id = (await params).id;
     const session = await checkAuth();
+
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Unauthorized access" },
+        { status: 401 }
+      );
     }
 
     const order = await prisma.order.findUnique({
-      where: {
-        id,
-      },
+      where: { id },
       include: {
         items: {
-          select: {
-            parcelId: true,
-            pieces: true,
+          include: {
+            Parcel: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
           },
         },
+        vehicle: true,
         coupon: {
           select: {
             id: true,
@@ -51,6 +59,25 @@ export const GET = async (
                 email: true,
                 phone: true,
                 address: true,
+                role: true,
+              },
+            },
+            vehicle: true,
+          },
+        },
+        bids: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          include: {
+            driver: {
+              include: {
+                user: {
+                  select: {
+                    name: true,
+                    phone: true,
+                  },
+                },
               },
             },
           },
@@ -63,11 +90,14 @@ export const GET = async (
     }
 
     return NextResponse.json(
-      { message: "Orders fetched successfully", data: order },
+      {
+        message: "Order details fetched successfully",
+        data: order,
+      },
       { status: 200 }
     );
   } catch (error) {
-    console.log("", error);
+    console.error("Error fetching order details:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
