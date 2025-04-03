@@ -30,5 +30,5 @@ export const OrderSchema = z.object({
     .enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELED"])
     .default("PENDING")
     .optional(),
-  scheduledDate: z.string().date().nullish(),
+  scheduledDate: z.string().datetime().nullish(),
 });
