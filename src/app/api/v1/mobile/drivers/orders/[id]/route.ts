@@ -8,31 +8,78 @@ export const GET = async (
 ) => {
   try {
     const orderId = (await params).id;
-    const id = validateJWT(request);
+    const userId = validateJWT(request);
 
-    if (!id) {
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Get driver with their vehicle type
     const driver = await prisma.driver.findUnique({
-      where: { userId: orderId },
+      where: { userId },
+      include: {
+        vehicle: true,
+      },
     });
 
     if (!driver) {
-      return NextResponse.json({ error: "" }, { status: 404 });
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
     }
 
+    // Get order with related data
     const order = await prisma.order.findUnique({
-      where: { id: orderId, driverId: driver.userId },
+      where: {
+        id: orderId,
+        driverId: driver.userId,
+      },
+      include: {
+        customer: {
+          select: {
+            name: true,
+            phone: true,
+            email: true,
+          },
+        },
+        items: {
+          include: {
+            Parcel: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        vehicle: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        bids: {
+          where: {
+            driverId: driver.userId,
+          },
+        },
+      },
     });
 
     if (!order) {
-      return NextResponse.json({ error: "" }, { status: 404 });
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "", data: order }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: "Order fetched successfully",
+        data: order,
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    console.log("", error);
-    return NextResponse.json({ error: "" }, { status: 500 });
+    console.error("Error fetching driver order:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 };

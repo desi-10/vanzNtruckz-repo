@@ -4,44 +4,83 @@ import { NextResponse } from "next/server";
 
 export const GET = async (request: Request) => {
   try {
-    const id = validateJWT(request);
-    if (!id) {
-      return NextResponse.json({ error: "" }, { status: 401 });
+    const userId = validateJWT(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const driver = await prisma.driver.findUnique({
-      where: { userId: id },
+      where: { userId },
+      include: {
+        vehicle: true,
+      },
     });
 
     if (!driver) {
-      return NextResponse.json({ error: "" }, { status: 404 });
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
     }
 
-    const order = await prisma.order.findMany({
-      where: { driverId: driver.userId },
-      orderBy: { createdAt: "desc" },
+    const orders = await prisma.order.findMany({
+      where: {
+        driverId: driver.userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
       include: {
+        customer: {
+          select: {
+            name: true,
+            phone: true,
+            email: true,
+          },
+        },
         items: {
           include: {
             Parcel: {
               select: {
                 id: true,
                 name: true,
-                isActive: true,
               },
             },
+          },
+        },
+        vehicle: {
+          select: {
+            id: true,
+            name: true,
+            isActive: true,
+          },
+        },
+        bids: {
+          where: {
+            driverId: driver.userId,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        coupon: {
+          select: {
+            id: true,
+            discount: true,
           },
         },
       },
     });
 
-    if (!order) {
-      return NextResponse.json({ error: "" }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: "", data: order }, { status: 200 });
+    return NextResponse.json(
+      {
+        message: "Orders fetched successfully",
+        data: orders,
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    console.log("", error);
-    return NextResponse.json({ error: "" }, { status: 500 });
+    console.error("Error fetching driver orders:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 };
