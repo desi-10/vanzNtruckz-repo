@@ -10,7 +10,7 @@ import { OrderSchema } from "@/types/order";
 export const GET = async (request: Request) => {
   try {
     const id = validateJWT(request);
-    // const id = "cm8s1ygyw0000gdmwdmokbsn8";
+    // const id = "cm8x1ve5q0002l5037yo6jj2t";
 
     if (!id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -188,12 +188,12 @@ export const POST = async (request: Request) => {
           pickUpPoint,
           dropOffPoint,
           vehicleId: vehicleId || "",
-          items: {
-            create: parcel.map((item) => ({
-              parcelId: item.parcelId,
-              pieces: item.pieces,
-            })),
-          },
+          // items: {
+          //   create: parcel.map((item) => ({
+          //     parcelId: item.parcelId,
+          //     pieces: item.pieces,
+          //   })),
+          // },
           imageOne: uploadResult || undefined,
           imageTwo: uploadResultTwo || undefined,
           imageThree: uploadResultThree || undefined,
@@ -205,8 +205,23 @@ export const POST = async (request: Request) => {
           isScheduled: scheduledDate ? true : false,
           status: "PENDING",
         },
-        include: { customer: { select: { id: true, name: true } } },
+        include: {
+          customer: { select: { id: true, name: true } },
+          items: { include: { Parcel: true } },
+        },
       });
+
+      await Promise.all(
+        parcel.map((item) =>
+          tx.orderItem.create({
+            data: {
+              orderId: newOrder.id, // ✅ Manually linking orderId
+              parcelId: item.parcelId,
+              pieces: item.pieces,
+            },
+          })
+        )
+      );
 
       const drivers = await tx.driver.findMany({
         where: {
