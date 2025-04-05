@@ -45,7 +45,9 @@ const main = async () => {
   // Seed Parcels
   await prisma.parcel.upsert({
     where: { name: "Electronics" },
-    update: {},
+    update: {
+      unit: "PCS",
+    },
     create: {
       name: "Electronics",
       description: "Fragile electronics and gadgets",
@@ -54,9 +56,30 @@ const main = async () => {
 
   await prisma.parcel.upsert({
     where: { name: "Clothing" },
-    update: {},
+    update: {
+      unit: "PCS",
+    },
     create: {
       name: "Clothing",
+      description: "Apparel and fashion accessories",
+    },
+  });
+  await prisma.parcel.upsert({
+    where: { name: "Instrument" },
+    update: {},
+    create: {
+      name: "Instruement",
+      unit: "PCS",
+      description: "Apparel and fashion accessories",
+    },
+  });
+
+  await prisma.parcel.upsert({
+    where: { name: "Shoes" },
+    update: {},
+    create: {
+      name: "Shoes",
+      unit: "BOX",
       description: "Apparel and fashion accessories",
     },
   });

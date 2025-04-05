@@ -11,10 +11,15 @@ export const GET = async (request: Request) => {
   try {
     const id = validateJWT(request);
     // const id = "cm8x1ve5q0002l5037yo6jj2t";
-
     if (!id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Get pagination parameters from URL
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "50");
+    const skip = (page - 1) * limit;
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -24,9 +29,17 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const order = await prisma.order.findMany({
+    // Get total count for pagination
+    const totalOrders = await prisma.order.count({
+      where: { customerId: user.id },
+    });
+
+    // Get paginated orders
+    const orders = await prisma.order.findMany({
       where: { customerId: user.id },
       orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
       include: {
         coupon: true,
         vehicle: {
@@ -38,11 +51,13 @@ export const GET = async (request: Request) => {
           },
         },
         items: {
-          include: {
+          select: {
+            parcelId: true,
+            pieces: true,
             Parcel: {
               select: {
-                id: true,
                 name: true,
+                unit: true,
               },
             },
           },
@@ -60,13 +75,38 @@ export const GET = async (request: Request) => {
                 role: true,
               },
             },
+            vehicle: {
+              select: {
+                id: true,
+                name: true,
+                isActive: true,
+                image: true,
+              },
+            },
+            // rating: true,
           },
         },
       },
     });
 
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalOrders / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
     return NextResponse.json(
-      { message: "Orders fetched successfully", data: order },
+      {
+        message: "Orders fetched successfully",
+        data: orders,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: totalOrders,
+          itemsPerPage: limit,
+          hasNextPage,
+          hasPrevPage,
+        },
+      },
       { status: 200 }
     );
   } catch (error) {
@@ -79,8 +119,8 @@ export const GET = async (request: Request) => {
 };
 
 export const POST = async (request: Request) => {
-  const id = validateJWT(request);
-  // const id = "cm8s1ygyw0000gdmwdmokbsn8";
+  // const id = validateJWT(request);
+  const id = "cm8x1ve5q0002l5037yo6jj2t";
 
   if (!id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -188,12 +228,12 @@ export const POST = async (request: Request) => {
           pickUpPoint,
           dropOffPoint,
           vehicleId: vehicleId || "",
-          // items: {
-          //   create: parcel.map((item) => ({
-          //     parcelId: item.parcelId,
-          //     pieces: item.pieces,
-          //   })),
-          // },
+          items: {
+            create: parcel.map((item) => ({
+              parcelId: item.parcelId,
+              pieces: item.pieces,
+            })),
+          },
           imageOne: uploadResult || undefined,
           imageTwo: uploadResultTwo || undefined,
           imageThree: uploadResultThree || undefined,
@@ -207,21 +247,22 @@ export const POST = async (request: Request) => {
         },
         include: {
           customer: { select: { id: true, name: true } },
-          items: { include: { Parcel: true } },
         },
       });
 
-      await Promise.all(
-        parcel.map((item) =>
-          tx.orderItem.create({
-            data: {
-              orderId: newOrder.id, // ✅ Manually linking orderId
-              parcelId: item.parcelId,
-              pieces: item.pieces,
-            },
-          })
-        )
-      );
+      console.log(parcel, "parcel");
+
+      // await Promise.all(
+      //   parcel.map((item) =>
+      //     tx.orderItem.create({
+      //       data: {
+      //         orderId: newOrder.id, // ✅ Manually linking orderId
+      //         parcelId: item.parcelId,
+      //         pieces: item.pieces,
+      //       },
+      //     })
+      //   )
+      // );
 
       const drivers = await tx.driver.findMany({
         where: {

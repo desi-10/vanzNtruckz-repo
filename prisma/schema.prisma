@@ -68,6 +68,11 @@ enum InboxType {
   CANCEL
 }
 
+enum ParcelUnitType {
+  PCS
+  BOX
+}
+
 model User {
   id                    String                @id @default(cuid())
   name                  String
@@ -227,12 +232,14 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  orderId   String?
-  parcelId  String
-  pieces    Int
-  Parcel    Parcel   @relation(fields: [parcelId], references: [id])
-  Order     Order?   @relation(fields: [orderId], references: [id])
+  id       String @id @default(cuid())
+  orderId  String
+  parcelId String
+  pieces   Int
+
+  Parcel Parcel @relation(fields: [parcelId], references: [id])
+  Order  Order  @relation(fields: [orderId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -310,10 +317,11 @@ model Vehicle {
 }
 
 model Parcel {
-  id          String  @id @default(cuid())
-  name        String  @unique
+  id          String          @id @default(cuid())
+  name        String          @unique
+  unit        ParcelUnitType? @default(PCS)
   description String?
-  isActive    Boolean @default(true)
+  isActive    Boolean         @default(true)
 
   OrderItem OrderItem[]
 }

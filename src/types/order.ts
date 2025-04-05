@@ -25,7 +25,7 @@ export const OrderSchema = z.object({
   recepientName: z.string().min(1, "Recipient name is required"),
   recepientNumber: z.string().min(1, "Recipient number is required"),
   additionalInfo: z.string().optional().nullable(),
-  coupon: z.string().optional(),
+  coupon: z.string().nullish(),
   status: z
     .enum(["PENDING", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELED"])
     .default("PENDING")

@@ -4,18 +4,55 @@ import { checkAuth } from "@/utils/check-auth";
 import { uploadFile } from "@/utils/cloudinary";
 import { NextResponse } from "next/server";
 
-export const GET = async () => {
+export const GET = async (request: Request) => {
   try {
     const session = await checkAuth();
-    if (!session) {
+    if (
+      !session?.user?.role ||
+      !["ADMIN", "SUPER_ADMIN"].includes(session.user.role)
+    ) {
       return NextResponse.json(
         { error: "Unauthorized access" },
         { status: 401 }
       );
     }
 
+    // Get pagination parameters from URL
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "10"))
+    );
+    const status = searchParams.get("status");
+    const search = searchParams.get("search");
+
+    // Build where clause
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+    if (search) {
+      where.OR = [
+        { customer: { name: { contains: search, mode: "insensitive" } } },
+        {
+          driver: { user: { name: { contains: search, mode: "insensitive" } } },
+        },
+        { recepientName: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    // Get total count
+    const totalOrders = await prisma.order.count({ where });
+
+    // Get paginated orders
     const orders = await prisma.order.findMany({
+      where,
       orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
       include: {
         items: {
           include: {
@@ -23,6 +60,8 @@ export const GET = async () => {
               select: {
                 id: true,
                 name: true,
+                unit: true,
+                description: true,
               },
             },
           },
@@ -39,13 +78,19 @@ export const GET = async () => {
                     email: true,
                   },
                 },
-                vehicle: true,
+                vehicle: {
+                  select: {
+                    id: true,
+                    name: true,
+                    isActive: true,
+                    image: true,
+                  },
+                },
+                // rating: true,
               },
             },
           },
-          orderBy: {
-            createdAt: "desc",
-          },
+          orderBy: { createdAt: "desc" },
         },
         customer: {
           select: {
@@ -67,28 +112,29 @@ export const GET = async () => {
               },
             },
             vehicle: true,
+            // rating: true,
           },
         },
-        vehicle: {
-          select: {
-            id: true,
-            name: true,
-            isActive: true,
-          },
-        },
-        coupon: {
-          select: {
-            id: true,
-            discount: true,
-          },
-        },
+        vehicle: true,
+        coupon: true,
       },
     });
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalOrders / limit);
 
     return NextResponse.json(
       {
         message: "Orders fetched successfully",
         data: orders,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: totalOrders,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1,
+        },
       },
       { status: 200 }
     );
