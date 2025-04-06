@@ -52,7 +52,7 @@ export const DeleteDialog = ({ data }: { data: DriverType }) => {
           <Button variant="ghost">Cancel</Button>
           <Button
             variant="destructive"
-            onClick={() => deleteDriverAsync(data)}
+            onClick={() => deleteDriverAsync({ id: data.userId })}
             disabled={isDeletingDriver}
           >
             {isDeletingDriver ? <Loader /> : "Delete Driver"}
