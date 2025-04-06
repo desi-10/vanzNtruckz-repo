@@ -163,7 +163,7 @@ export const columns: ColumnDef<OrderTable>[] = [
           ? "Confirmed"
           : row.original.status === "IN_PROGRESS"
           ? "In Progress"
-          : "Failed"}
+          : "Canceled"}
       </Badge>
     ),
   },

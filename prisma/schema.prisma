@@ -214,6 +214,7 @@ model Order {
   scheduleDate    DateTime?
   isScheduled     Boolean   @default(false)
 
+  amount         Float?
   status         OrderStatus  @default(PENDING)
   transaction    Transaction?
   driverSnapshot Json?

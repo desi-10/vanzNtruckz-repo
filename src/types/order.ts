@@ -14,6 +14,7 @@ export const OrderSchema = z.object({
   dropOffPoint: z.string().min(1, "Drop off address is required"),
   driverId: z.string().nullish(),
   vehicleId: z.string().min(1, "Vehicle type is required"),
+  amount: z.coerce.number().nullish(),
   parcel: z.array(orderItems),
   imageOne: z.union([
     z.instanceof(File).nullish(),

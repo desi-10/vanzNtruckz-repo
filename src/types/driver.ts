@@ -21,6 +21,7 @@ export const UpdateDriverSchema = z.object({
   name: z.string().nullish(),
   address: z.string().nullish(),
   phoneNumber: z.string().length(10, "Invalid phone number").nullish(),
+  kycStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]).nullish(),
   profilePicture: z.union([
     z.string().base64().nullish(),
     z.instanceof(File).nullish(),

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { UpdateDriverSchema } from "@/types/driver";
 import { deleteFile, uploadFile } from "@/utils/cloudinary";
+import { KycStatus } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export const GET = async (
@@ -26,7 +27,12 @@ export const GET = async (
     const driver = await prisma.driver.findUnique({
       where: { userId: id },
       include: {
-        orders: true,
+        orders: {
+          orderBy: { createdAt: "desc" },
+          include: {
+            customer: true,
+          },
+        },
         vehicle: true,
         user: {
           select: {
@@ -104,7 +110,8 @@ export const PATCH = async (
       insuranceExpiry: body.get("insuranceExpiry"),
       ghanaCard: body.get("ghanaCard"),
       ghanaCardPicture: body.get("ghanaCardPicture"),
-      address: body.get("address"),
+      address: body.get("address") as string,
+      kycStatus: body.get("kycStatus") as KycStatus,
     });
 
     if (!validate.success) {
@@ -113,6 +120,8 @@ export const PATCH = async (
         { status: 400 }
       );
     }
+
+    console.log(validate.data, "validate.data");
 
     const filteredData = Object.fromEntries(
       Object.entries(validate.data).filter(
@@ -283,6 +292,10 @@ export const PATCH = async (
       return await tx.driver.upsert({
         where: { userId: user.id },
         update: {
+          kycStatus:
+            validate.data.kycStatus ||
+            user.driverProfile?.kycStatus ||
+            KycStatus.PENDING,
           insurance:
             validate.data.insurance || user.driverProfile?.insurance || null,
           ghanaCard:
@@ -338,6 +351,7 @@ export const PATCH = async (
           numberPlate: validate.data.numberPlate || null,
           license: validate.data.license || null,
           vehicleId: validate.data.vehicleId || undefined,
+          kycStatus: validate.data.kycStatus || KycStatus.PENDING,
           licenseExpiry: validate.data.licenseExpiry
             ? new Date(validate.data.licenseExpiry)
             : null,

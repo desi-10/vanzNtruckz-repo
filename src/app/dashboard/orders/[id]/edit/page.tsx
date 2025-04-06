@@ -107,6 +107,8 @@ export default function EditOrderPage() {
         parcel: order.items || [],
         coupon: order.couponId || "",
       });
+
+      setAmount(order.amount || 0);
       setDriver(order.driver || null);
       setScheduledDate(new Date(order.scheduledDate || "") || null);
     }
@@ -135,6 +137,7 @@ export default function EditOrderPage() {
     formData.append("status", data.status || "PENDING");
     formData.append("pickUpPoint", data.pickUpPoint);
     formData.append("dropOffPoint", data.dropOffPoint);
+    formData.append("amount", amount.toString() || "0");
     formData.append("driverId", driver?.userId || "");
     formData.append("vehicleId", driver?.vehicleId || data.vehicleId);
     formData.append("recepientName", data.recepientName);

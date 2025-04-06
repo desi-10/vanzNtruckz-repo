@@ -128,7 +128,7 @@ const SingleDriver = () => {
   const [roadworthyExpiry, setRoadworthyExpiry] = useState<Date | undefined>(
     undefined
   );
-  const [kycStatus, setKycStatus] = useState<string | undefined>(undefined);
+  const [kycStatus, setKycStatus] = useState<KycStatus>(KycStatus.PENDING);
 
   // Update dates when data is available
   useEffect(() => {
@@ -157,9 +157,6 @@ const SingleDriver = () => {
   });
 
   const handleImageChange = (field: string, file: File | null) => {
-    console.log(field, "field");
-    console.log(file, "file");
-
     setSelectedImages((prev) => {
       const updatedImages = { ...prev, [field]: file };
       return updatedImages;
@@ -204,7 +201,6 @@ const SingleDriver = () => {
       const formData = new FormData();
 
       formData.append("name", data.name || "");
-
       formData.append("phone", data.phoneNumber || "");
       // formData.append("email", data.email || "");
       formData.append("address", data.address || "");
@@ -218,7 +214,7 @@ const SingleDriver = () => {
         "roadworthyExpiry",
         roadworthyExpiry?.toISOString() || ""
       );
-      formData.append("kycStatus", kycStatus || "PENDING");
+      formData.append("kycStatus", kycStatus);
 
       Object.entries(selectedImages).forEach(([key, value]) => {
         if (value) {

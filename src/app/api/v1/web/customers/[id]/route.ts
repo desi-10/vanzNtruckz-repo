@@ -37,9 +37,19 @@ export const GET = async (
         emailVerified: true,
         phoneVerified: true,
         orders: {
+          orderBy: { createdAt: "desc" },
           include: {
             items: true,
-            driver: true,
+            driver: {
+              select: {
+                user: {
+                  select: {
+                    name: true,
+                    phone: true,
+                  },
+                },
+              },
+            },
             vehicle: true,
           },
         },
