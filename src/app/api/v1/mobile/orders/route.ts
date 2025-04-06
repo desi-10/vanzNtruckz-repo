@@ -195,8 +195,8 @@ export const GET = async (request: Request) => {
 };
 
 export const POST = async (request: Request) => {
-  // const id = validateJWT(request);
-  const id = "cm8x1ve5q0002l5037yo6jj2t";
+  const id = validateJWT(request);
+  // const id = "cm8x1ve5q0002l5037yo6jj2t";
 
   if (!id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

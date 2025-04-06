@@ -17,8 +17,8 @@ import ServerError from "@/components/server-error";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { UserDriverType } from "@/types/driver";
+import { ArrowLeft, CheckCircle, Timer, Users, XCircle } from "lucide-react";
+import { DriverType } from "@/types/driver";
 
 export default function DriverOrdersPage() {
   const id = useParams().id;
@@ -27,7 +27,7 @@ export default function DriverOrdersPage() {
     isLoading,
     isError,
   } = useGetDriver((id as string) || "");
-  const driver: UserDriverType = driverData?.data;
+  const driver: DriverType = driverData?.data;
 
   if (isError) return <ServerError />;
 
@@ -46,18 +46,22 @@ export default function DriverOrdersPage() {
           </div>
           <h1 className="text-2xl font-bold mt-2">Driver Orders</h1>
           <p className="text-sm text-gray-600">
-            View all orders assigned to {driver?.name}
+            View all orders assigned to {driver?.user?.name}
           </p>
         </div>
       </div>
 
       {/* Stats Cards */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <div className="pb-2">
-            <p className="text-sm font-medium text-gray-500">Total Orders</p>
-          </div>
-          <div>
+        {/* Total Orders */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Total Orders
+            </CardTitle>
+            <Users className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
             <div className="text-2xl font-bold">
               {isLoading ? (
                 <Skeleton className="h-7 w-16" />
@@ -65,15 +69,18 @@ export default function DriverOrdersPage() {
                 driver?.orders?.length || 0
               )}
             </div>
-          </div>
-        </div>
+            <p className="text-xs text-muted-foreground">All time orders</p>
+          </CardContent>
+        </Card>
 
-        <section>
-          <div className="pb-2">
-            <p className="text-sm font-medium text-gray-500">
+        {/* Completed Orders */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm font-medium text-gray-500">
               Completed Orders
-            </p>
-          </div>
+            </CardTitle>
+            <CheckCircle className="h-5 w-5 text-green-600" />
+          </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
               {isLoading ? (
@@ -83,14 +90,19 @@ export default function DriverOrdersPage() {
                   .length || 0
               )}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Successfully delivered
+            </p>
           </CardContent>
-        </section>
+        </Card>
 
+        {/* Active Orders */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
               Active Orders
             </CardTitle>
+            <Timer className="h-5 w-5 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
@@ -102,14 +114,19 @@ export default function DriverOrdersPage() {
                 ).length || 0
               )}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Currently in progress
+            </p>
           </CardContent>
         </Card>
 
+        {/* Cancelled Orders */}
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">
               Cancelled Orders
             </CardTitle>
+            <XCircle className="h-5 w-5 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
@@ -120,6 +137,7 @@ export default function DriverOrdersPage() {
                   .length || 0
               )}
             </div>
+            <p className="text-xs text-muted-foreground">Orders cancelled</p>
           </CardContent>
         </Card>
       </section>

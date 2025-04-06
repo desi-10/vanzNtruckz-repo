@@ -262,8 +262,14 @@ export const columns: ColumnDef<DriverType>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`/dashboard/drivers/${data.userId}`}>
+              <Link href={`/dashboard/drivers/${data.userId}/orders`}>
                 View Driver
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link href={`/dashboard/drivers/${data.userId}`}>
+                Edit Driver
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

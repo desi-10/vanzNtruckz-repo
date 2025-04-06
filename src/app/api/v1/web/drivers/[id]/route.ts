@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { UpdateDriverSchema } from "@/types/driver";
 import { deleteFile, uploadFile } from "@/utils/cloudinary";
 import { NextResponse } from "next/server";
-import { z } from "zod";
 
 export const GET = async (
   request: Request,
@@ -59,28 +59,6 @@ export const GET = async (
     );
   }
 };
-
-const UpdateDriverSchema = z.object({
-  name: z.string().nullish(),
-  address: z.string().nullish(),
-  phoneNumber: z.string().length(10, "Invalid phone number").nullish(),
-  profilePicture: z.string().base64().nullish(),
-  carPicture: z.string().base64().nullish(),
-  vehicleId: z.string().nullish(),
-  numberPlate: z.string().nullish(),
-  numberPlatePicture: z.string().base64().nullish(),
-  license: z.string().nullish(),
-  licensePicture: z.string().base64().nullish(),
-  licenseExpiry: z.string().nullish(),
-  roadworthyNumber: z.string().nullish(),
-  roadworthySticker: z.string().base64().nullish(),
-  roadworthyExpiry: z.string().nullish(),
-  insuranceSticker: z.string().base64().nullish(),
-  insurance: z.string().nullish(),
-  insuranceExpiry: z.string().nullish(),
-  ghanaCard: z.string().nullish(),
-  ghanaCardPicture: z.string().base64().nullish(),
-});
 
 export const PATCH = async (
   request: Request,
