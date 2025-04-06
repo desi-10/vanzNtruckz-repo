@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { uploadFile } from "@/utils/cloudinary";
+import { deleteFile, uploadFile } from "@/utils/cloudinary";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -23,28 +23,32 @@ export const GET = async (
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        image: true,
-        role: true,
-        driverProfile: true,
-        address: true,
-        emailVerified: true,
-        phoneVerified: true,
+    const driver = await prisma.driver.findUnique({
+      where: { userId: id },
+      include: {
+        orders: true,
+        vehicle: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            address: true,
+            role: true,
+          },
+        },
       },
     });
 
-    if (!user) {
+    if (!driver) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    console.log(driver, "driver");
+
     return NextResponse.json(
-      { message: "User retrieved successfully", data: user },
+      { message: "Driver retrieved successfully", data: driver },
       { status: 200 }
     );
   } catch (error) {
@@ -56,31 +60,26 @@ export const GET = async (
   }
 };
 
-const updateDriverSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").optional(),
-  phone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .optional(),
-  email: z.string().optional(),
-  address: z.string().min(2, "Address must be at least 2 characters").nullish(),
-  vehicleId: z.string().optional(),
-  numberPlate: z.string().optional(),
-  roadworthyNumber: z.string().optional(),
-  licenseExpiry: z.string().optional(),
-  insuranceExpiry: z.string().optional(),
-  roadworthyExpiry: z.string().optional(),
-  kycStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
-  profilePicture: z.instanceof(File).optional().nullable(),
-  carPicture: z.instanceof(File).optional().nullable(),
-  numberPlatePicture: z.instanceof(File).optional().nullable(),
-  license: z.string().optional().nullable(),
-  licensePicture: z.instanceof(File).optional().nullable(),
-  roadworthySticker: z.instanceof(File).optional().nullable(),
-  insuranceSticker: z.instanceof(File).optional().nullable(),
-  insurance: z.string().optional().nullable(),
-  ghanaCard: z.string().optional().nullable(),
-  ghanaCardPicture: z.instanceof(File).optional().nullable(),
+const UpdateDriverSchema = z.object({
+  name: z.string().nullish(),
+  address: z.string().nullish(),
+  phoneNumber: z.string().length(10, "Invalid phone number").nullish(),
+  profilePicture: z.string().base64().nullish(),
+  carPicture: z.string().base64().nullish(),
+  vehicleId: z.string().nullish(),
+  numberPlate: z.string().nullish(),
+  numberPlatePicture: z.string().base64().nullish(),
+  license: z.string().nullish(),
+  licensePicture: z.string().base64().nullish(),
+  licenseExpiry: z.string().nullish(),
+  roadworthyNumber: z.string().nullish(),
+  roadworthySticker: z.string().base64().nullish(),
+  roadworthyExpiry: z.string().nullish(),
+  insuranceSticker: z.string().base64().nullish(),
+  insurance: z.string().nullish(),
+  insuranceExpiry: z.string().nullish(),
+  ghanaCard: z.string().nullish(),
+  ghanaCardPicture: z.string().base64().nullish(),
 });
 
 export const PATCH = async (
@@ -98,209 +97,299 @@ export const PATCH = async (
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const formData = await request.formData();
-    const body: Record<string, File | string | null> = {};
-    formData.forEach((value, key) => {
-      body[key] = value;
-    });
-
-    const validate = updateDriverSchema.safeParse(body);
-    if (!validate.success) {
-      return NextResponse.json(
-        { error: "Invalid data format", issues: validate.error.errors },
-        { status: 400 }
-      );
-    }
-
-    const {
-      name,
-      phone,
-      email,
-      address,
-      profilePicture,
-      carPicture,
-      vehicleId,
-      numberPlate,
-      roadworthyNumber,
-      licenseExpiry,
-      insuranceExpiry,
-      roadworthyExpiry,
-      kycStatus,
-      licensePicture,
-      license,
-      roadworthySticker,
-      insuranceSticker,
-      insurance,
-      ghanaCard,
-      ghanaCardPicture,
-      numberPlatePicture,
-    } = validate.data;
-
     const user = await prisma.user.findUnique({
       where: { id },
       include: { driverProfile: true },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user || user.role !== "DRIVER") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Upload Files if Available
-    let profilePictureUpload = null;
-    let carPictureUpload = null;
-    let licensePictureUpload = null;
-    let numberPlatePictureUpload = null;
-    let roadworthyStickerUpload = null;
-    let insuranceStickerUpload = null;
-    let ghanaCardPictureUpload = null;
+    const body = await request.formData();
 
-    if (profilePicture) {
-      profilePictureUpload = await uploadFile("profile", profilePicture);
-    }
-
-    if (carPicture) {
-      carPictureUpload = await uploadFile("car", carPicture);
-    }
-
-    if (licensePicture) {
-      licensePictureUpload = await uploadFile("license", licensePicture);
-    }
-
-    if (numberPlatePicture) {
-      numberPlatePictureUpload = await uploadFile(
-        "number_plate",
-        numberPlatePicture
-      );
-    }
-
-    if (roadworthySticker) {
-      roadworthyStickerUpload = await uploadFile(
-        "roadworthy",
-        roadworthySticker
-      );
-    }
-
-    if (insuranceSticker) {
-      insuranceStickerUpload = await uploadFile("insurance", insuranceSticker);
-    }
-
-    if (ghanaCardPicture) {
-      ghanaCardPictureUpload = await uploadFile("ghana_card", ghanaCardPicture);
-    }
-
-    // Update User & Driver Profile
-    await prisma.user.update({
-      where: { id },
-      data: {
-        name,
-        phone,
-        email,
-        address,
-        driverProfile: {
-          upsert: {
-            create: {
-              profilePicture:
-                profilePictureUpload?.url ||
-                user.driverProfile?.profilePicture ||
-                undefined,
-              carPicture:
-                carPictureUpload?.url ||
-                user.driverProfile?.carPicture ||
-                undefined,
-              insurance: insurance || user.driverProfile?.insurance || null,
-              ghanaCard: ghanaCard || user.driverProfile?.ghanaCard || null,
-              license: license || user.driverProfile?.license || null,
-              vehicleId: vehicleId || null,
-              numberPlate: numberPlate || null,
-              roadworthyNumber: roadworthyNumber || null,
-              licenseExpiry: licenseExpiry || null,
-              insuranceExpiry: insuranceExpiry || null,
-              roadworthyExpiry: roadworthyExpiry || null,
-              kycStatus: kycStatus || "PENDING",
-              licensePicture:
-                licensePictureUpload?.url ||
-                user.driverProfile?.licensePicture ||
-                undefined,
-              numberPlatePicture:
-                numberPlatePictureUpload?.url ||
-                user.driverProfile?.numberPlatePicture ||
-                undefined,
-              roadworthySticker:
-                roadworthyStickerUpload?.url ||
-                user.driverProfile?.roadworthySticker ||
-                undefined,
-              insuranceSticker:
-                insuranceStickerUpload?.url ||
-                user.driverProfile?.insuranceSticker ||
-                undefined,
-              ghanaCardPicture:
-                ghanaCardPictureUpload?.url ||
-                user.driverProfile?.ghanaCardPicture ||
-                undefined,
-            },
-            update: {
-              profilePicture:
-                profilePictureUpload?.url ||
-                user.driverProfile?.profilePicture ||
-                undefined,
-              carPicture:
-                carPictureUpload?.url ||
-                user.driverProfile?.carPicture ||
-                undefined,
-              insurance: insurance || user.driverProfile?.insurance || null,
-              ghanaCard: ghanaCard || user.driverProfile?.ghanaCard || null,
-              license: license || user.driverProfile?.license || null,
-              vehicleId: vehicleId || user.driverProfile?.vehicleId || null,
-              numberPlate:
-                numberPlate || user.driverProfile?.numberPlate || null,
-              roadworthyNumber:
-                roadworthyNumber ||
-                user.driverProfile?.roadworthyNumber ||
-                null,
-              licenseExpiry:
-                licenseExpiry || user.driverProfile?.licenseExpiry || null,
-              insuranceExpiry:
-                insuranceExpiry || user.driverProfile?.insuranceExpiry || null,
-              roadworthyExpiry:
-                roadworthyExpiry ||
-                user.driverProfile?.roadworthyExpiry ||
-                null,
-              kycStatus:
-                kycStatus || user.driverProfile?.kycStatus || "PENDING",
-              licensePicture:
-                licensePictureUpload?.url ||
-                user.driverProfile?.licensePicture ||
-                undefined,
-              numberPlatePicture:
-                numberPlatePictureUpload?.url ||
-                user.driverProfile?.numberPlatePicture ||
-                undefined,
-              roadworthySticker:
-                roadworthyStickerUpload?.url ||
-                user.driverProfile?.roadworthySticker ||
-                undefined,
-              insuranceSticker:
-                insuranceStickerUpload?.url ||
-                user.driverProfile?.insuranceSticker ||
-                undefined,
-              ghanaCardPicture:
-                ghanaCardPictureUpload?.url ||
-                user.driverProfile?.ghanaCardPicture ||
-                undefined,
-            },
-          },
-        },
-      },
+    const validate = UpdateDriverSchema.safeParse({
+      profilePicture: body.get("profilePicture"),
+      carPicture: body.get("carPicture"),
+      phoneNumber: body.get("phoneNumber"),
+      vehicleId: body.get("vehicleId"),
+      numberPlate: body.get("numberPlate"),
+      numberPlatePicture: body.get("numberPlatePicture"),
+      license: body.get("license"),
+      licensePicture: body.get("licensePicture"),
+      licenseExpiry: body.get("licenseExpiry"),
+      roadworthyNumber: body.get("roadworthyNumber"),
+      roadworthySticker: body.get("roadworthySticker"),
+      roadworthyExpiry: body.get("roadworthyExpiry"),
+      insuranceSticker: body.get("insuranceSticker"),
+      insurance: body.get("insurance"),
+      insuranceExpiry: body.get("insuranceExpiry"),
+      ghanaCard: body.get("ghanaCard"),
+      ghanaCardPicture: body.get("ghanaCardPicture"),
+      address: body.get("address"),
     });
 
+    if (!validate.success) {
+      return NextResponse.json(
+        { error: "Invalid data", errors: validate.error.format() },
+        { status: 400 }
+      );
+    }
+
+    const filteredData = Object.fromEntries(
+      Object.entries(validate.data).filter(
+        ([, value]) => value !== null && value !== "" && value !== undefined
+      )
+    );
+
+    const [existingPhoneNumber, existingLicense, existingNumberPlate] =
+      await Promise.all([
+        prisma.user.findUnique({
+          where: { phone: (filteredData.phoneNumber as string) || "" },
+        }),
+        prisma.driver.findUnique({
+          where: { license: (filteredData.license as string) || "" },
+        }),
+        prisma.driver.findUnique({
+          where: { numberPlate: (filteredData.numberPlate as string) || "" },
+        }),
+      ]);
+
+    if (existingPhoneNumber && existingPhoneNumber.id !== user.id) {
+      return NextResponse.json(
+        { error: "Phone number already in use" },
+        { status: 409 }
+      );
+    }
+
+    if (existingLicense && existingLicense.userId !== user.id) {
+      return NextResponse.json(
+        { error: "License already in use" },
+        { status: 409 }
+      );
+    }
+
+    if (existingNumberPlate && existingNumberPlate.userId !== user.id) {
+      return NextResponse.json(
+        { error: "Number plate already in use" },
+        { status: 409 }
+      );
+    }
+
+    let profilePicture = null;
+    let carPicture = null;
+    let numberPlatePicture = null;
+    let licensePicture = null;
+    let roadworthySticker = null;
+    let insuranceSticker = null;
+    let ghanaCardPicture = null;
+
+    if (validate.data.profilePicture) {
+      if (
+        user.driverProfile?.profilePicture &&
+        typeof user.driverProfile?.profilePicture === "object" &&
+        "id" in user.driverProfile?.profilePicture
+      ) {
+        await deleteFile(user.driverProfile?.profilePicture.id as string);
+      }
+
+      profilePicture = await uploadFile(
+        "profile",
+        validate.data.profilePicture
+      );
+    }
+
+    if (validate.data.carPicture) {
+      if (
+        user.driverProfile?.carPicture &&
+        typeof user.driverProfile?.carPicture === "object" &&
+        "id" in user.driverProfile?.carPicture
+      ) {
+        await deleteFile(user.driverProfile?.carPicture.id as string);
+      }
+
+      carPicture = await uploadFile("car", validate.data.carPicture);
+    }
+
+    if (validate.data.numberPlatePicture) {
+      if (
+        user.driverProfile?.numberPlatePicture &&
+        typeof user.driverProfile?.numberPlatePicture === "object" &&
+        "id" in user.driverProfile?.numberPlatePicture
+      ) {
+        await deleteFile(user.driverProfile?.numberPlatePicture.id as string);
+      }
+
+      numberPlatePicture = await uploadFile(
+        "number_plate",
+        validate.data.numberPlatePicture
+      );
+    }
+
+    if (validate.data.licensePicture) {
+      if (
+        user.driverProfile?.licensePicture &&
+        typeof user.driverProfile?.licensePicture === "object" &&
+        "id" in user.driverProfile?.licensePicture
+      ) {
+        await deleteFile(user.driverProfile?.licensePicture.id as string);
+      }
+
+      licensePicture = await uploadFile(
+        "license",
+        validate.data.licensePicture
+      );
+    }
+
+    if (validate.data.roadworthySticker) {
+      if (
+        user.driverProfile?.roadworthySticker &&
+        typeof user.driverProfile?.roadworthySticker === "object" &&
+        "id" in user.driverProfile?.roadworthySticker
+      ) {
+        await deleteFile(user.driverProfile?.roadworthySticker.id as string);
+      }
+
+      roadworthySticker = await uploadFile(
+        "roadworthy",
+        validate.data.roadworthySticker
+      );
+    }
+
+    if (validate.data.insuranceSticker) {
+      if (
+        user.driverProfile?.insuranceSticker &&
+        typeof user.driverProfile?.insuranceSticker === "object" &&
+        "id" in user.driverProfile?.insuranceSticker
+      ) {
+        await deleteFile(user.driverProfile?.insuranceSticker.id as string);
+      }
+
+      insuranceSticker = await uploadFile(
+        "insurance",
+        validate.data.insuranceSticker
+      );
+    }
+
+    if (validate.data.ghanaCardPicture) {
+      if (
+        user.driverProfile?.ghanaCardPicture &&
+        typeof user.driverProfile?.ghanaCardPicture === "object" &&
+        "id" in user.driverProfile?.ghanaCardPicture
+      ) {
+        await deleteFile(user.driverProfile?.ghanaCardPicture.id as string);
+      }
+
+      ghanaCardPicture = await uploadFile(
+        "ghana_card",
+        validate.data.ghanaCardPicture
+      );
+    }
+
+    console.log(validate.data.vehicleId, "vehicleId");
+
+    console.log(validate.data.profilePicture, "profilePicture");
+
+    console.log(profilePicture, "updatedProfilePicture");
+
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
+        data: {
+          address: validate.data.address || user.address || "",
+          phone: (validate.data.phoneNumber as string) || user.phone || null,
+          image: profilePicture || user.image || undefined,
+        },
+      });
+
+      return await tx.driver.upsert({
+        where: { userId: user.id },
+        update: {
+          insurance:
+            validate.data.insurance || user.driverProfile?.insurance || null,
+          ghanaCard:
+            validate.data.ghanaCard || user.driverProfile?.ghanaCard || null,
+          numberPlate:
+            validate.data.numberPlate ||
+            user.driverProfile?.numberPlate ||
+            null,
+          license: validate.data.license || user.driverProfile?.license || null,
+          vehicleId:
+            validate.data.vehicleId ||
+            user.driverProfile?.vehicleId ||
+            undefined,
+          licenseExpiry: validate.data.licenseExpiry
+            ? new Date(validate.data.licenseExpiry)
+            : user.driverProfile?.licenseExpiry,
+          roadworthyNumber: validate.data.roadworthyNumber
+            ? validate.data.roadworthyNumber
+            : user.driverProfile?.roadworthyNumber,
+          roadworthyExpiry: validate.data.roadworthyExpiry
+            ? new Date(validate.data.roadworthyExpiry)
+            : user.driverProfile?.roadworthyExpiry,
+          profilePicture:
+            profilePicture || user.driverProfile?.profilePicture || undefined,
+          carPicture: carPicture || user.driverProfile?.carPicture || undefined,
+          numberPlatePicture:
+            numberPlatePicture ||
+            user.driverProfile?.numberPlatePicture ||
+            undefined,
+          licensePicture:
+            licensePicture || user.driverProfile?.licensePicture || undefined,
+          roadworthySticker:
+            roadworthySticker ||
+            user.driverProfile?.roadworthySticker ||
+            undefined,
+          insuranceSticker:
+            insuranceSticker ||
+            user.driverProfile?.insuranceSticker ||
+            undefined,
+          ghanaCardPicture:
+            ghanaCardPicture ||
+            user.driverProfile?.ghanaCardPicture ||
+            undefined,
+          insuranceExpiry: validate.data.insuranceExpiry
+            ? new Date(validate.data.insuranceExpiry)
+            : user.driverProfile?.insuranceExpiry,
+        },
+        create: {
+          userId: user.id,
+          insurance: validate.data.insurance || null,
+          roadworthyNumber: validate.data.roadworthyNumber || null,
+          ghanaCard: validate.data.ghanaCard || null,
+          numberPlate: validate.data.numberPlate || null,
+          license: validate.data.license || null,
+          vehicleId: validate.data.vehicleId || undefined,
+          licenseExpiry: validate.data.licenseExpiry
+            ? new Date(validate.data.licenseExpiry)
+            : null,
+          insuranceExpiry: validate.data.insuranceExpiry
+            ? new Date(validate.data.insuranceExpiry)
+            : null,
+          roadworthyExpiry: validate.data.roadworthyExpiry
+            ? new Date(validate.data.roadworthyExpiry as string)
+            : null,
+          profilePicture: profilePicture || undefined,
+          carPicture: carPicture || undefined,
+          numberPlatePicture: numberPlatePicture || undefined,
+          licensePicture: licensePicture || undefined,
+          roadworthySticker: roadworthySticker || undefined,
+          insuranceSticker: insuranceSticker || undefined,
+          ghanaCardPicture: ghanaCardPicture || undefined,
+        },
+      });
+    });
+
+    console.log(result, "result");
+
     return NextResponse.json(
-      { message: "Driver updated successfully" },
+      { message: "Driver updated successfully", data: result },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error updating driver:", error);
+    console.error("Error updating KYC:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Something went wrong" },
       { status: 500 }
     );
   }

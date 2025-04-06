@@ -1,7 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
-import { fetchCustomers } from "./query/customer";
+import { fetchCustomer, fetchCustomers } from "./query/customer";
+
+export const useGetCustomer = (id: string) => {
+  return useQuery({
+    queryKey: ["customer", id],
+    queryFn: () => fetchCustomer(id),
+  });
+};
 
 export const useGetCustomers = () => {
   return useQuery({

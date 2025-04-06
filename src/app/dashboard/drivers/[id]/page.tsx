@@ -25,7 +25,10 @@ import { DeleteDialog } from "@/components/drivers/delete-driver";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Loader from "@/components/loader";
 import { useGetDriver } from "@/service/driver";
+import Link from "next/link";
+import { DriverType } from "@/types/driver";
 
+// Update the ProfileImageWithOverlay component props and input id
 const ProfileImageWithOverlay = ({
   src,
   alt,
@@ -35,9 +38,9 @@ const ProfileImageWithOverlay = ({
   alt: string;
   onImageChange: (file: File) => void;
 }) => {
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(alt, "alt");
+  const inputId = `profile-image-input-${alt}`; // Create unique ID for each input
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const file = event.target.files[0];
       if (file) {
@@ -49,7 +52,9 @@ const ProfileImageWithOverlay = ({
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="relative w-32 h-32 rounded-full shadow-md overflow-hidden group">
-        <label htmlFor="profile-image-input" className="cursor-pointer">
+        <label htmlFor={inputId} className="cursor-pointer">
+          {" "}
+          {/* Use unique ID here */}
           <Image
             src={src || "/images/default-user-profile.png"}
             alt={alt}
@@ -62,7 +67,7 @@ const ProfileImageWithOverlay = ({
           </div>
         </label>
         <input
-          id="profile-image-input"
+          id={inputId}
           type="file"
           accept="image/*"
           className="hidden"
@@ -74,11 +79,24 @@ const ProfileImageWithOverlay = ({
   );
 };
 
+type ProfileImageKey =
+  | "carPicture"
+  | "profilePicture"
+  | "licensePicture"
+  | "numberPlatePicture"
+  | "ghanaCardPicture"
+  | "roadworthySticker"
+  | "insuranceSticker";
+
 const SingleDriver = () => {
   const id = useParams().id;
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useGetDriver((id as string) || "");
-
+  const {
+    data: driverData,
+    isLoading,
+    isError,
+  } = useGetDriver((id as string) || "");
+  const driver: DriverType = driverData?.data || null;
   // Initialize dates properly
   const [licenseExpiry, setLicenseExpiry] = useState<Date | undefined>(
     undefined
@@ -93,30 +111,28 @@ const SingleDriver = () => {
 
   // Update dates when data is available
   useEffect(() => {
-    if (!isLoading && data?.data?.driverProfile) {
-      const profile = data.data.driverProfile;
-
-      if (profile.licenseExpiry) {
-        setLicenseExpiry(new Date(profile.licenseExpiry as string));
+    if (!isLoading && driver) {
+      if (driver.licenseExpiry) {
+        setLicenseExpiry(new Date(driver.licenseExpiry));
       }
-      if (profile.insuranceExpiry) {
-        setInsuranceExpiry(new Date(profile.insuranceExpiry as string));
+      if (driver.insuranceExpiry) {
+        setInsuranceExpiry(new Date(driver.insuranceExpiry));
       }
-      if (profile.roadworthyExpiry) {
-        setRoadworthyExpiry(new Date(profile.roadworthyExpiry as string));
+      if (driver.roadworthyExpiry) {
+        setRoadworthyExpiry(new Date(driver.roadworthyExpiry));
       }
-      setKycStatus(profile.kycStatus ?? "PENDING");
+      setKycStatus(driver.kycStatus ?? "PENDING");
     }
-  }, [data, isLoading]);
+  }, [driver, isLoading]);
 
   const [selectedImages, setSelectedImages] = useState({
-    image: null,
     carPicture: null,
-    numberPlatePicture: null,
+    profilePicture: null,
     licensePicture: null,
+    numberPlatePicture: null,
+    ghanaCardPicture: null,
     roadworthySticker: null,
     insuranceSticker: null,
-    ghanaCardPicture: null,
   });
 
   const handleImageChange = (field: string, file: File | null) => {
@@ -132,20 +148,15 @@ const SingleDriver = () => {
   const { mutateAsync: handleUpdate, isPending: isUpdatingKyc } = useMutation({
     mutationFn: async () => {
       const formData = new FormData();
-      formData.append("name", data?.data?.name);
-      formData.append("phone", data?.data?.phone);
-      formData.append("email", data?.data?.email);
-      formData.append("address", data?.data?.address);
-      formData.append(
-        "licenseNumber",
-        data?.data?.driverProfile?.licenseNumber
-      );
-      formData.append("vehicleType", data?.data?.driverProfile?.vehicleType);
-      formData.append("plateNumber", data?.data?.driverProfile?.plateNumber);
-      formData.append(
-        "roadworthyNumber",
-        data?.data?.driverProfile?.roadworthyNumber
-      );
+
+      formData.append("name", driver?.user.name);
+      formData.append("phone", driver?.user.phone as string);
+      formData.append("email", driver?.user.email as string);
+      formData.append("address", driver?.user.address as string);
+      formData.append("licenseNumber", driver?.license as string);
+      formData.append("vehicleType", driver.vehicleId as string);
+      formData.append("plateNumber", driver.numberPlate as string);
+      formData.append("roadworthyNumber", driver?.roadworthyNumber as string);
       formData.append("licenseExpiry", licenseExpiry?.toISOString() || "");
       formData.append("insuranceExpiry", insuranceExpiry?.toISOString() || "");
       formData.append(
@@ -200,7 +211,7 @@ const SingleDriver = () => {
             variant="outline"
             className="border-red-500 text-red-500 hover:text-red-500"
           >
-            <DeleteDialog data={data} />
+            <DeleteDialog data={driver} />
           </Button>
           <Button
             onClick={async () => await handleUpdate()}
@@ -212,60 +223,64 @@ const SingleDriver = () => {
         </div>
       </div>
 
+      <Button asChild variant="outline">
+        <Link href={`/dashboard/drivers/${id}/orders`}>View Orders</Link>
+      </Button>
       {/* Images */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 lg:grid-cols-7 gap-4">
-        {Object.entries(selectedImages).map(([key, value]) => (
-          <ProfileImageWithOverlay
-            key={key}
-            src={
-              value
-                ? URL.createObjectURL(value)
-                : key === "image"
-                ? data?.data?.[key]?.url
-                : data?.data?.driverProfile?.[key]?.url
-            }
-            alt={key}
-            onImageChange={(file) => handleImageChange(key, file)}
-          />
-        ))}
-      </div>
+        {Object.entries(selectedImages).map(([key, value]) => {
+          const typedKey = key as ProfileImageKey;
 
+          return (
+            <ProfileImageWithOverlay
+              key={key}
+              src={
+                value
+                  ? URL.createObjectURL(value)
+                  : (driver?.[typedKey] as { url: string })?.url ??
+                    "/images/default-user-profile.png"
+              }
+              alt={key}
+              onImageChange={(file) => handleImageChange(key, file)}
+            />
+          );
+        })}
+      </div>
       {/* Driver Information */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="flex flex-col">
           <label className="text-sm font-medium">Driver Name</label>
           <input
-            value={data?.data?.name ?? ""}
-            disabled
+            type="text"
+            value={driver?.user?.name ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
         <div className="flex flex-col">
           <label className="text-sm font-medium">Phone Number</label>
           <input
-            value={data?.data?.phone ?? ""}
-            disabled
+            type="text"
+            value={driver?.user?.phone ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
         <div className="flex flex-col">
           <label className="text-sm font-medium">Email</label>
           <input
-            value={data?.data?.email ?? ""}
-            disabled
+            type="email"
+            value={driver?.user?.email ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
         <div className="flex flex-col">
           <label className="text-sm font-medium">Address</label>
           <input
-            value={data?.data?.address ?? ""}
-            disabled
+            type="text"
+            value={driver?.user?.address ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
       </div>
-
       {/* Other Details */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* License Number */}
@@ -273,8 +288,7 @@ const SingleDriver = () => {
           <label className="text-sm font-medium">License Number</label>
           <input
             type="text"
-            value={data?.data?.driverProfile?.licenseNumber ?? ""}
-            disabled
+            value={driver?.license ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
@@ -284,19 +298,17 @@ const SingleDriver = () => {
           <label className="text-sm font-medium">Vehicle Type</label>
           <input
             type="text"
-            value={data?.data?.driverProfile?.vehicleType ?? ""}
-            disabled
+            value={driver?.vehicle.name ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
 
         {/* Plate Number */}
         <div className="flex flex-col">
-          <label className="text-sm font-medium">Plate Number</label>
+          <label className="text-sm font-medium">Number Plate</label>
           <input
             type="text"
-            value={data?.data?.driverProfile?.plateNumber ?? ""}
-            disabled
+            value={driver?.numberPlate ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
@@ -305,13 +317,11 @@ const SingleDriver = () => {
           <label className="text-sm font-medium">Roadworthy Number</label>
           <input
             type="text"
-            value={data?.data?.driverProfile?.roadworthyNumber ?? ""}
-            disabled
+            value={driver?.roadworthyNumber ?? ""}
             className="border p-2 rounded-md"
           />
         </div>
       </div>
-
       {/* Document Expiry Dates */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
         {/* License Expiry */}
@@ -375,7 +385,6 @@ const SingleDriver = () => {
           </Popover>
         </div>
       </div>
-
       {/* KYC Status Dropdown */}
       <div className="w-full sm:w-64">
         <label className="text-sm font-medium">KYC Status</label>

@@ -6,10 +6,24 @@ import TableLoader from "@/components/table-loader";
 import { columns } from "@/components/table/columns/drivers";
 import { DataTable } from "@/components/table/data-table";
 import { useGetDrivers } from "@/service/driver";
+import { DriverType } from "@/types/driver";
 import React from "react";
 
+type Drivers = {
+  data: DriverType[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+};
+
 const DriversPage = () => {
-  const { data, isLoading, isError } = useGetDrivers();
+  const { data: driversData, isLoading, isError } = useGetDrivers();
+  const drivers: Drivers = driversData || null;
 
   if (isError) {
     return <ServerError />;
@@ -25,7 +39,7 @@ const DriversPage = () => {
         <TableLoader />
       ) : (
         <div className="w-full">
-          <DataTable data={data} columns={columns} />
+          <DataTable data={drivers} columns={columns} />
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { User } from "next-auth";
 import { z } from "zod";
 
 export const LoginSchema = z.object({
@@ -41,3 +42,7 @@ export const ForgotPasswordSchema = z.object({
     message: "Invalid email",
   }),
 });
+
+export type userType = User & {
+  image: { id: string; url: string } | null;
+};

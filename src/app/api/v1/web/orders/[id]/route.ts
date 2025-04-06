@@ -139,17 +139,19 @@ export const PATCH = async (
     const parsedData = OrderSchema.safeParse({
       pickUpPoint: body.get("pickUpPoint") as string,
       dropOffPoint: body.get("dropOffPoint") as string,
+      driverId: body.get("driverId") as string,
       vehicleId: body.get("vehicleId") as string,
-      parcel: body.get("parcel") as string,
-      image: body.get("imageOne") as string,
-      imageTwo: body.get("imageTwo") as string,
-      imageThree: body.get("imageThree") as string,
+      parcel: JSON.parse((body.get("parcel") as string) ?? "[]"),
+      imageOne: body.get("imageOne") as File,
+      imageTwo: body.get("imageTwo") as File,
+      imageThree: body.get("imageThree") as File,
       recepientName: body.get("recepientName") as string,
       recepientNumber: body.get("recepientNumber") as string,
       additionalInfo: body.get("additionalInfo") as string,
       baseCharge: body.get("baseCharge") as string,
       coupon: body.get("coupon") as string,
       status: body.get("status") as string,
+      // scheduledDate: body.get("scheduledDate") as string,
     });
 
     if (!parsedData.success) {
@@ -162,6 +164,7 @@ export const PATCH = async (
     const {
       pickUpPoint,
       dropOffPoint,
+      driverId,
       vehicleId,
       parcel,
       imageOne,
@@ -170,20 +173,37 @@ export const PATCH = async (
       recepientName,
       recepientNumber,
       additionalInfo,
-
       coupon,
       status,
+      scheduledDate,
     } = parsedData.data;
 
+    let code = null;
+
+    if (coupon) {
+      code = await prisma.coupon.findUnique({
+        where: { code: coupon },
+      });
+
+      if (!code) {
+        return NextResponse.json(
+          { error: "Coupon not found" },
+          { status: 404 }
+        );
+      }
+    }
+
+    console.log(code, "code");
+
     if (order.status !== "PENDING" && status === "CANCELED") {
-      return NextResponse.json({}, { status: 400 });
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
     let uploadResult = null;
     let uploadResultTwo = null;
     let uploadResultThree = null;
 
-    if (imageOne) {
+    if (imageOne as File) {
       if (
         order.imageOne &&
         typeof order.imageOne === "object" &&
@@ -194,7 +214,7 @@ export const PATCH = async (
       uploadResult = await uploadFile("orders", imageOne as File);
     }
 
-    if (imageTwo) {
+    if (imageTwo as File) {
       if (
         order.imageTwo &&
         typeof order.imageTwo === "object" &&
@@ -205,7 +225,7 @@ export const PATCH = async (
       uploadResultTwo = await uploadFile("orders", imageTwo as File);
     }
 
-    if (imageThree) {
+    if (imageThree as File) {
       if (
         order.imageThree &&
         typeof order.imageThree === "object" &&
@@ -216,29 +236,34 @@ export const PATCH = async (
       uploadResultThree = await uploadFile("orders", imageThree as File);
     }
 
+    console.log(parsedData, "parsedData");
+
     const updatedOrder = await prisma.order.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         pickUpPoint: pickUpPoint || order.pickUpPoint || "",
         dropOffPoint: dropOffPoint || order.dropOffPoint || "",
         vehicleId: vehicleId || order.vehicleId || "",
-        items: {
-          update:
-            parcel?.map((item) => ({
-              where: { id: item.parcelId },
-              data: { pieces: item.pieces },
-            })) || order.items,
-        },
+        driverId: driverId || order.driverId || null,
         recepientName: recepientName || order.recepientName || "",
         recepientNumber: recepientNumber || order.recepientNumber || "",
-        additionalInfo: additionalInfo || order.additionalInfo || null,
-        couponId: coupon || order.couponId || null,
+        additionalInfo: additionalInfo || order.additionalInfo || "",
+        scheduleDate: scheduledDate || order.scheduleDate || null,
+        isScheduled: scheduledDate ? true : false,
+        couponId: code?.id || null,
         status: status || order.status || "PENDING",
         imageOne: uploadResult || order.imageOne || undefined,
         imageTwo: uploadResultTwo || order.imageTwo || undefined,
         imageThree: uploadResultThree || order.imageThree || undefined,
+        items: {
+          deleteMany: {},
+          create: parcel?.map((item) => {
+            return {
+              parcelId: item.parcelId,
+              pieces: item.pieces,
+            };
+          }),
+        },
       },
     });
 
@@ -247,7 +272,7 @@ export const PATCH = async (
       { status: 200 }
     );
   } catch (error) {
-    console.log("", error);
+    console.log("Error updating order:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

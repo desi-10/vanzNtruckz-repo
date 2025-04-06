@@ -21,23 +21,16 @@ export const GET = async (req: Request) => {
     const limit = parseInt(url.searchParams.get("limit") || "50", 10);
     const skip = (page - 1) * limit;
 
-    const drivers = await prisma.user.findMany({
+    const drivers = await prisma.driver.findMany({
       take: limit,
       skip,
-      where: {
-        role: "DRIVER",
+      orderBy: {
+        createdAt: "desc",
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phone: true,
-        role: true,
-        address: true,
-        image: true,
-        emailVerified: true,
-        phoneVerified: true,
-        driverProfile: true,
+      include: {
+        user: true,
+        vehicle: true,
+        orders: true,
       },
     });
 

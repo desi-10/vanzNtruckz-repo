@@ -36,6 +36,13 @@ export const GET = async (
         address: true,
         emailVerified: true,
         phoneVerified: true,
+        orders: {
+          include: {
+            items: true,
+            driver: true,
+            vehicle: true,
+          },
+        },
       },
     });
 

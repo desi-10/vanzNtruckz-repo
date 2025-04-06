@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchOrders } from "./query/order";
+import { fetchOrder, fetchOrders } from "./query/order";
 import axios from "axios";
+
+export const useGetOrder = (id: string) => {
+  return useQuery({
+    queryKey: ["order", id],
+    queryFn: () => fetchOrder(id),
+  });
+};
 
 export const useGetOrders = () => {
   return useQuery({

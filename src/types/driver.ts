@@ -1,5 +1,7 @@
 import { Driver, User } from "@prisma/client";
 import { z } from "zod";
+import { OrderType } from "./order";
+import { vechicleType } from "./vehicle";
 
 export const addUserSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
@@ -15,8 +17,9 @@ export const addUserSchema = z.object({
   image: z.instanceof(File).optional().nullable(),
 });
 
-export type DriverType = User & {
+export type UserDriverType = User & {
   image: { id: string; url: string } | null;
+  orders: OrderType[];
   driverProfile:
     | null
     | (Driver & {
@@ -28,4 +31,17 @@ export type DriverType = User & {
         roadworthySticker: { id: string; url: string } | null;
         insuranceSticker: { id: string; url: string } | null;
       });
+};
+
+export type DriverType = Driver & {
+  carPicture: { id: string; url: string } | null;
+  profilePicture: { id: string; url: string } | null;
+  licensePicture: { id: string; url: string } | null;
+  numberPlatePicture: { id: string; url: string } | null;
+  ghanaCardPicture: { id: string; url: string } | null;
+  roadworthySticker: { id: string; url: string } | null;
+  insuranceSticker: { id: string; url: string } | null;
+  vehicle: vechicleType;
+  orders: OrderType[];
+  user: User;
 };

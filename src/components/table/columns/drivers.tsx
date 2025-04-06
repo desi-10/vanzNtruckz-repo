@@ -58,10 +58,10 @@ export const columns: ColumnDef<DriverType>[] = [
     cell: ({ row }) => (
       <div className="">
         <div className="flex justify-center items-center w-full">
-          {row.original?.driverProfile?.carPicture ? (
+          {row.original?.carPicture ? (
             <div className="h-10 w-10 overflow-hidden rounded-full flex justify-center items-center">
               <Image
-                src={row.original?.driverProfile?.carPicture?.url ?? ""}
+                src={row.original?.carPicture?.url ?? ""}
                 alt="Car Picture"
                 width={100}
                 height={100}
@@ -92,11 +92,12 @@ export const columns: ColumnDef<DriverType>[] = [
     cell: ({ row }) => (
       <div className="">
         <div className="flex justify-center items-center w-full">
-          {row.original?.image ? (
+          {row.original?.profilePicture ? (
             <div className="h-10 w-10 overflow-hidden rounded-full flex justify-center items-center">
               <Image
                 src={
-                  row.original?.image?.url ?? "/images/default-user-profile.png"
+                  row.original?.profilePicture?.url ??
+                  "/images/default-user-profile.png"
                 }
                 alt="Profile Picture"
                 width={100}
@@ -128,9 +129,9 @@ export const columns: ColumnDef<DriverType>[] = [
     cell: ({ row }) => (
       <Link
         className="truncate w-44 hover:underline"
-        href={`/dashboard/orders/${row.original.id}`}
+        href={`/dashboard/orders/${row.original.userId}`}
       >
-        <div className="truncate w-44 ">{row.original.id}</div>
+        <div className="truncate w-44 ">{row.original.userId}</div>
       </Link>
     ),
   },
@@ -146,7 +147,7 @@ export const columns: ColumnDef<DriverType>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.original?.name ?? "N/A"}</div>,
+    cell: ({ row }) => <div>{row.original?.user?.name ?? "N/A"}</div>,
     enableHiding: false,
   },
   {
@@ -162,7 +163,9 @@ export const columns: ColumnDef<DriverType>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div>{row.original?.phone || row.original?.email || "N/A"}</div>
+      <div>
+        {row.original?.user?.phone || row.original?.user?.email || "N/A"}
+      </div>
     ),
   },
   {
@@ -180,16 +183,16 @@ export const columns: ColumnDef<DriverType>[] = [
     cell: ({ row }) => (
       <Badge
         className={`bg-white text-black rounded-full border hover:bg-transparent ${
-          row.original?.driverProfile?.kycStatus === "APPROVED"
+          row.original?.kycStatus === "APPROVED"
             ? "border-green-500"
-            : row.original?.driverProfile?.kycStatus === "PENDING"
+            : row.original?.kycStatus === "PENDING"
             ? "border-gray-500 text-gray-500"
             : "border-red-500 text-red-500"
         }`}
       >
-        {row.original?.driverProfile?.kycStatus === "APPROVED"
+        {row.original?.kycStatus === "APPROVED"
           ? "Approved"
-          : row.original?.driverProfile?.kycStatus === "PENDING"
+          : row.original?.kycStatus === "PENDING"
           ? "Pending"
           : "Rejected"}
       </Badge>
@@ -207,9 +210,7 @@ export const columns: ColumnDef<DriverType>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <div>{row.original?.driverProfile?.license ?? "N/A"}</div>
-    ),
+    cell: ({ row }) => <div>{row.original?.license ?? "N/A"}</div>,
   },
   {
     id: "number_plate",
@@ -223,9 +224,7 @@ export const columns: ColumnDef<DriverType>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <div>{row.original?.driverProfile?.numberPlate ?? "N/A"}</div>
-    ),
+    cell: ({ row }) => <div>{row.original?.numberPlate ?? "N/A"}</div>,
   },
   {
     id: "Address",
@@ -239,7 +238,7 @@ export const columns: ColumnDef<DriverType>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.original.address}</div>,
+    cell: ({ row }) => <div>{row.original.user.address}</div>,
   },
   {
     id: "actions",
@@ -257,13 +256,15 @@ export const columns: ColumnDef<DriverType>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(data.id)}
+              onClick={() => navigator.clipboard.writeText(data.userId)}
             >
               Copy Driver ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <Link href={`/dashboard/drivers/${data.id}`}>View Driver</Link>
+              <Link href={`/dashboard/drivers/${data.userId}`}>
+                View Driver
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>

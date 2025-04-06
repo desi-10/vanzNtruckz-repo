@@ -36,8 +36,14 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const orders = await prisma.order.findMany({
+      where: {
+        driverId: id,
+      },
+    });
+
     return NextResponse.json(
-      { message: "Driver retrieved successfully", data: user },
+      { message: "Driver retrieved successfully", data: { user, orders } },
       { status: 200 }
     );
   } catch (error) {
@@ -73,8 +79,8 @@ const UpdateDriverSchema = z.object({
 
 export const PATCH = async (request: Request) => {
   try {
-    // const id = validateJWT(request);
-    const id = "cm8x4eyyr0001l203we7liu7h";
+    const id = validateJWT(request);
+    // const id = "cm8x4eyyr0001l203we7liu7h";
 
     if (!id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

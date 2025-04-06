@@ -7,6 +7,17 @@ import { OrderSchema } from "@/types/order";
 // import { scheduleNotification } from "@/utils/scheduler";
 
 /** ✅ GET - Fetch Paginated Orders */
+
+// type Pagination = {
+//   currentPage: number;
+//   totalPages: number;
+//   totalItems: number;
+//   itemsPerPage: number;
+//   hasNextPage: boolean;
+//   hasPrevPage: boolean;
+// };
+
+// Update the GET endpoint to include filters
 export const GET = async (request: Request) => {
   try {
     const id = validateJWT(request);
@@ -15,10 +26,13 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get pagination parameters from URL
     const { searchParams } = new URL(request.url);
+
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "50");
+    const customerName = searchParams.get("customerName");
+    const driverName = searchParams.get("driverName");
+    const status = searchParams.get("status");
     const skip = (page - 1) * limit;
 
     const user = await prisma.user.findUnique({
@@ -29,19 +43,63 @@ export const GET = async (request: Request) => {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get total count for pagination
+    // Determine user role and filter field accordingly
+    const roleBasedFilter =
+      user.role === "DRIVER" ? { driverId: user.id } : { customerId: user.id };
+
+    // Build where clause with filters
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const whereClause: any = {
+      ...roleBasedFilter,
+      ...(status && { status }),
+      ...(customerName && {
+        customer: {
+          name: {
+            contains: customerName,
+            mode: "insensitive" as const,
+          },
+        },
+      }),
+      ...(driverName && {
+        driver: {
+          user: {
+            name: {
+              contains: driverName,
+              mode: "insensitive" as const,
+            },
+          },
+        },
+      }),
+    };
+
+    // Get total count with filters
     const totalOrders = await prisma.order.count({
-      where: { customerId: user.id },
+      where: whereClause,
     });
 
-    // Get paginated orders
+    // Get filtered and paginated orders
     const orders = await prisma.order.findMany({
-      where: { customerId: user.id },
+      where: whereClause,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
-      include: {
-        coupon: true,
+      select: {
+        id: true,
+        pickUpPoint: true,
+        dropOffPoint: true,
+        recepientName: true,
+        recepientNumber: true,
+        additionalInfo: true,
+        scheduleDate: true,
+        isScheduled: true,
+        status: true,
+        coupon: {
+          select: {
+            id: true,
+            discount: true,
+          },
+        },
         vehicle: {
           select: {
             id: true,
@@ -50,6 +108,9 @@ export const GET = async (request: Request) => {
             image: true,
           },
         },
+        imageOne: true,
+        imageTwo: true,
+        imageThree: true,
         items: {
           select: {
             parcelId: true,
@@ -62,34 +123,49 @@ export const GET = async (request: Request) => {
             },
           },
         },
-        driver: {
-          select: {
-            user: {
-              select: {
-                id: true,
-                image: true,
-                name: true,
-                phone: true,
-                address: true,
-                email: true,
-                role: true,
+        ...(user.role === "CUSTOMER"
+          ? {
+              driver: {
+                select: {
+                  user: {
+                    select: {
+                      id: true,
+                      image: true,
+                      name: true,
+                      phone: true,
+                      address: true,
+                      email: true,
+                      role: true,
+                    },
+                  },
+                  vehicle: {
+                    select: {
+                      id: true,
+                      name: true,
+                      isActive: true,
+                      image: true,
+                    },
+                  },
+                },
               },
-            },
-            vehicle: {
-              select: {
-                id: true,
-                name: true,
-                isActive: true,
-                image: true,
+            }
+          : {}),
+        ...(user.role === "DRIVER"
+          ? {
+              customer: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  email: true,
+                  address: true,
+                },
               },
-            },
-            // rating: true,
-          },
-        },
+            }
+          : {}),
       },
     });
 
-    // Calculate pagination metadata
     const totalPages = Math.ceil(totalOrders / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
