@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, ArrowUpDown } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,18 +13,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { Bid, Order } from "@prisma/client";
 import { Badge } from "@/components/ui/badge";
+import { OrderType } from "@/types/order";
 
-type OrderTable = Order & {
-  customer: { name: string; email: string; phone: string; address: string };
-  driver: { user: { name: string } };
-  bids: Bid[];
-  transaction: { amount: number; paymentMethod: string; status: string };
-  dispatch: { status: string };
-};
-
-export const columns: ColumnDef<OrderTable>[] = [
+export const columns: ColumnDef<OrderType>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -56,7 +48,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Order ID</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (
@@ -77,7 +69,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Customer Name</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => <div>{row.original?.customer?.name ?? "N/A"}</div>,
@@ -92,7 +84,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Phone/Email</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (
@@ -110,7 +102,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Pickup Point</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => <div>{row.original.pickUpPoint}</div>,
@@ -124,7 +116,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Dropoff Point</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => <div>{row.original.dropOffPoint}</div>,
@@ -138,7 +130,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Delivery Status</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (
@@ -176,7 +168,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Driver</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => <div>{row.original.driver?.user?.name ?? "N/A"}</div>,
@@ -190,7 +182,7 @@ export const columns: ColumnDef<OrderTable>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Created Date</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (

@@ -5,7 +5,7 @@ export const fetchOrder = async (id: string) => {
   return data;
 };
 
-export const fetchOrders = async () => {
-  const { data } = await axios.get("/api/v1/web/orders");
+export const fetchOrders = async (page: number) => {
+  const { data } = await axios.get("/api/v1/web/orders?page=" + page);
   return data;
 };

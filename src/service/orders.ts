@@ -9,10 +9,10 @@ export const useGetOrder = (id: string) => {
   });
 };
 
-export const useGetOrders = () => {
+export const useGetOrders = (page: number) => {
   return useQuery({
-    queryKey: ["orders"],
-    queryFn: () => fetchOrders(),
+    queryKey: ["orders", page],
+    queryFn: () => fetchOrders(page),
   });
 };
 

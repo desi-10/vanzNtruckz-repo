@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, ArrowUpDown, User as UserIcon } from "lucide-react";
+import { MoreHorizontal, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -50,7 +50,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Profile Picture</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (
@@ -82,7 +82,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Customer ID</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (
@@ -103,7 +103,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Name</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => <div>{row.original?.name ?? "N/A"}</div>,
@@ -118,7 +118,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Phone/Email</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (
@@ -134,7 +134,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Address</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => <div>{row.original.address ?? "N/A"}</div>,
@@ -148,7 +148,7 @@ export const columns: ColumnDef<CustomerType>[] = [
         className="flex items-center space-x-2 cursor-pointer"
       >
         <p>Verified</p>
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
       </div>
     ),
     cell: ({ row }) => (

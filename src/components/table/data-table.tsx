@@ -34,16 +34,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { Pagination } from "./pagination";
+// import { Pagination } from "./pagination";
 import BatchUpdate from "../drivers/batch-update";
+import { usePathname } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: {
     data: TData[];
     pagination: {
-      page: number;
+      currentPage: number;
       totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
       hasNextPage: boolean;
       hasPrevPage: boolean;
     };
@@ -59,7 +62,7 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [filtering, setFiltering] = useState("");
-
+  const pathName = usePathname();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -82,6 +85,7 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       globalFilter: filtering,
+      pagination: { pageIndex: 0, pageSize: 50 },
     },
   });
 
@@ -140,7 +144,9 @@ export function DataTable<TData, TValue>({
                   })}
               </DropdownMenuContent>
             </DropdownMenu>
-            <BatchUpdate data={data} rowSelection={rowSelection} />
+            {pathName === "/dashboard/drivers" && (
+              <BatchUpdate data={data} rowSelection={rowSelection} />
+            )}
           </div>
         </div>
         <div className="">
@@ -194,11 +200,9 @@ export function DataTable<TData, TValue>({
           </Table>
         </div>
       </div>
-      <div className="mt-8">
-        {/* <DataTablePagination table={table} data={data?.pagination} /> */}
-
-        <Pagination table={table} {...data?.pagination} />
-      </div>
+      {/* <div className="mt-8">
+        <DataTablePagination table={table} data={data?.pagination} />
+      </div> */}
     </div>
   );
 }

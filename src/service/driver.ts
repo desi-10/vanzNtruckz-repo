@@ -3,10 +3,10 @@ import axios, { AxiosError } from "axios";
 import { toast } from "sonner";
 import { fetchDriver, fetchDrivers } from "./query/drivers";
 
-export const useGetDrivers = () => {
+export const useGetDrivers = (page?: number) => {
   return useQuery({
-    queryKey: ["drivers"],
-    queryFn: () => fetchDrivers(),
+    queryKey: ["drivers", page],
+    queryFn: () => fetchDrivers(page),
   });
 };
 

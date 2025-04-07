@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const fetchDrivers = async () => {
-  const { data } = await axios.get("/api/v1/web/drivers");
+export const fetchDrivers = async (page = 1) => {
+  const { data } = await axios.get("/api/v1/web/drivers?page=" + page);
   return data;
 };
 

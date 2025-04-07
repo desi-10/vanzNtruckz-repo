@@ -107,7 +107,7 @@ const SingleOrder = () => {
                 <div className="flex items-center gap-4">
                   <MapPin className="text-green-500" />
                   <div className="">
-                    <p className="">Pick-Up Location</p>
+                    <p className="text-sm">Pick-Up Location</p>
                     <p className="text-sm text-gray-500">
                       {order?.pickUpPoint}
                     </p>
@@ -116,7 +116,7 @@ const SingleOrder = () => {
                 <div className="flex items-center gap-4">
                   <MapPin className=" text-red-500" />
                   <div className="">
-                    <p className="">Drop-Off Location</p>
+                    <p className="text-sm">Drop-Off Location</p>
                     <p className="text-sm text-gray-500">
                       {order?.dropOffPoint}
                     </p>
@@ -127,7 +127,7 @@ const SingleOrder = () => {
                 <div className="flex items-center gap-4">
                   <User2 className=" text-gray-500" />
                   <div>
-                    <p className="">Receipient Name</p>
+                    <p className="text-sm">Receipient Name</p>
                     <p className="text-sm text-gray-500">
                       {order?.recepientName}
                     </p>
@@ -136,7 +136,7 @@ const SingleOrder = () => {
                 <div className="flex items-center gap-4">
                   <Phone className=" text-gray-500" />
                   <div>
-                    <p className="">Receipient Number</p>
+                    <p className="text-sm">Receipient Number</p>
                     <p className="text-sm text-gray-500">
                       {order?.recepientNumber}
                     </p>
@@ -155,7 +155,7 @@ const SingleOrder = () => {
                   <div key={item.id} className="flex items-center gap-4">
                     <Package className="h-7 w-7" />
                     <div>
-                      <p className="">{item?.Parcel.name}</p>
+                      <p className="text-sm">{item?.Parcel.name}</p>
                       <p className="text-sm text-gray-500">
                         Quantity: {item?.pieces}
                       </p>
@@ -220,7 +220,7 @@ const SingleOrder = () => {
           {/* Customer Info */}
           <section className="space-y-2">
             <div>
-              <p className="">Customer</p>
+              <p className="text-sm">Customer</p>
             </div>
             <div className="text-sm">
               <div className="flex items-center gap-4">
@@ -231,7 +231,7 @@ const SingleOrder = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="">{order?.customer?.name}</p>
+                  <p className="text-sm">{order?.customer?.name}</p>
                   <p className="text-sm text-gray-500">
                     {order?.customer?.phone}
                   </p>
@@ -244,7 +244,7 @@ const SingleOrder = () => {
           {/* Driver Info */}
           <section className="space-y-2">
             <div>
-              <p className="text-lg">Driver</p>
+              <p className="text-sm">Driver</p>
             </div>
             <div className="text-sm">
               {order?.driver ? (
@@ -272,14 +272,14 @@ const SingleOrder = () => {
           {/* Order Timeline */}
           <div className="space-y-2">
             <div>
-              <p className="">Order Timeline</p>
+              <p className="text-sm">Order Timeline</p>
             </div>
             <div>
               <div className="space-y-4 text-sm">
                 <div className="flex items-center gap-3">
                   <Clock className="h-5 w-5 mt-0.5 text-gray-500" />
                   <div>
-                    <p className="">Order Created</p>
+                    <p className="text-sm">Order Created</p>
                     <p className="text-sm text-gray-500">
                       {order?.createdAt &&
                         format(new Date(order.createdAt), "PPP p")}

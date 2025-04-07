@@ -1,87 +1,97 @@
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
-import { Table } from "@tanstack/react-table";
-import { useState } from "react";
+import { PaginationState } from "@/hooks/use-pagination";
 
-interface PaginationProps<TData> {
-  table: Table<TData>;
-  page: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
+interface DataTablePaginationProps<TData> {
+  table: TData[];
+  pagination: PaginationState;
+  onPageChange: (page: number) => void;
 }
 
-export function Pagination<TData>({
+export function DataTablePagination<TData>({
   table,
-  page,
-  totalPages,
-  hasNextPage,
-  hasPrevPage,
-}: PaginationProps<TData>) {
-  // Generate an array of pages with ellipses
-  const [currentPage, setCurrentPage] = useState(1);
+  pagination,
+  onPageChange,
+}: DataTablePaginationProps<TData>) {
+  const { currentPage, totalPages, hasNextPage, hasPrevPage, totalItems } =
+    pagination;
 
-  console.log("Current Page:", currentPage);
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
 
-  const getPages = () => {
-    if (totalPages <= 5) {
+    if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    if (page <= 3) {
-      return [1, 2, 3, "...", totalPages];
+    pages.push(1); // Always show first page
+
+    if (currentPage > 4) {
+      pages.push("...");
     }
 
-    if (page >= totalPages - 2) {
-      return [1, "...", totalPages - 2, totalPages - 1, totalPages];
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
     }
 
-    return [1, "...", page - 1, page, page + 1, "...", totalPages];
+    if (currentPage < totalPages - 3) {
+      pages.push("...");
+    }
+
+    pages.push(totalPages); // Always show last page
+
+    return pages;
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-center sm:justify-end space-x-2 mt-4">
+    <div className="flex items-center justify-between px-2 mt-4">
       <div className="flex-1 text-sm text-muted-foreground">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+        {table?.length} of {totalItems} row(s) shown.
       </div>
-      {/* Previous Button */}
-      <Button
-        variant="outline"
-        className="h-8 w-8 p-0"
-        onClick={() => setCurrentPage(currentPage - 1)}
-        disabled={!hasPrevPage}
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-      </Button>
-
-      {/* Page Numbers with Ellipses */}
-      {getPages().map((p, index) =>
-        typeof p === "number" ? (
+      <div className="flex items-center space-x-6 lg:space-x-8">
+        <div className="flex items-center space-x-2">
           <Button
-            key={index}
-            variant={p === page ? "default" : "outline"}
+            variant="outline"
             className="h-8 w-8 p-0"
-            onClick={() => setCurrentPage(p)}
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={!hasPrevPage}
           >
-            {p}
+            <ChevronLeftIcon className="h-4 w-4" />
           </Button>
-        ) : (
-          <span key={index} className="px-2 text-muted-foreground">
-            {p}
-          </span>
-        )
-      )}
 
-      {/* Next Button */}
-      <Button
-        variant="outline"
-        className="h-8 w-8 p-0"
-        onClick={() => setCurrentPage(currentPage + 1)}
-        disabled={!hasNextPage}
-      >
-        <ChevronRightIcon className="h-4 w-4" />
-      </Button>
+          {getPageNumbers().map((pageNumber, idx) =>
+            typeof pageNumber === "number" ? (
+              <Button
+                key={idx}
+                variant={pageNumber === currentPage ? "default" : "outline"}
+                className={`h-8 w-8 p-0 ${
+                  pageNumber === currentPage
+                    ? "bg-primaryColor text-white hover:bg-primaryColor/90"
+                    : ""
+                }`}
+                onClick={() => onPageChange(pageNumber)}
+              >
+                {pageNumber}
+              </Button>
+            ) : (
+              <span key={idx} className="px-2 text-sm text-muted-foreground">
+                {pageNumber}
+              </span>
+            )
+          )}
+
+          <Button
+            variant="outline"
+            className="h-8 w-8 p-0"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={!hasNextPage}
+          >
+            <ChevronRightIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

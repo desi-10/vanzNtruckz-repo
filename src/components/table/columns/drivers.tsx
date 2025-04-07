@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, ArrowUpDown, Truck } from "lucide-react";
+import { MoreHorizontal, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -47,13 +47,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "car_picture",
     accessorKey: "carPicture",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Car Picture
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => (
       <div className="">
@@ -81,13 +81,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "profile_picture",
     accessorKey: "profile_picture",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Profile Picture
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => (
       <div className="">
@@ -118,13 +118,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "driver_id",
     accessorKey: "id",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Driver ID
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => (
       <Link
@@ -139,13 +139,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "driver",
     accessorKey: "user.name",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Driver
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => <div>{row.original?.user?.name ?? "N/A"}</div>,
     enableHiding: false,
@@ -154,13 +154,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "phone_email",
     accessorKey: "user.phone",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Phone/Email
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => (
       <div>
@@ -172,13 +172,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "kyc_status",
     accessorKey: "kycStatus",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         KYC Status
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => (
       <Badge
@@ -202,13 +202,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "license",
     accessorKey: "license",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         License
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => <div>{row.original?.license ?? "N/A"}</div>,
   },
@@ -216,13 +216,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "number_plate",
     accessorKey: "numberPlate",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Number Plate
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => <div>{row.original?.numberPlate ?? "N/A"}</div>,
   },
@@ -230,13 +230,13 @@ export const columns: ColumnDef<DriverType>[] = [
     id: "Address",
     accessorKey: "address",
     header: ({ column }) => (
-      <Button
-        variant="ghost"
+      <div
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="flex items-center space-x-2 cursor-pointer"
       >
         Address
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
+        {/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+      </div>
     ),
     cell: ({ row }) => <div>{row.original.user.address}</div>,
   },

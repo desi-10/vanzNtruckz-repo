@@ -7,10 +7,7 @@ import { NextResponse } from "next/server";
 export const GET = async (request: Request) => {
   try {
     const session = await checkAuth();
-    if (
-      !session?.user?.role ||
-      !["ADMIN", "SUPER_ADMIN"].includes(session.user.role)
-    ) {
+    if (!session) {
       return NextResponse.json(
         { error: "Unauthorized access" },
         { status: 401 }
@@ -22,7 +19,7 @@ export const GET = async (request: Request) => {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
     const limit = Math.min(
       50,
-      Math.max(1, parseInt(searchParams.get("limit") || "10"))
+      Math.max(1, parseInt(searchParams.get("limit") || "50"))
     );
     const status = searchParams.get("status");
     const search = searchParams.get("search");

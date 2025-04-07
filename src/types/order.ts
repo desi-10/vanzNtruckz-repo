@@ -1,8 +1,8 @@
 import { Order } from "@prisma/client";
 import { z } from "zod";
-import { userType } from "./user";
 import { DriverType } from "./driver";
 import { vechicleType } from "./vehicle";
+import { CustomerType } from "./customer";
 
 const orderItems = z.object({
   parcelId: z.string().min(1),
@@ -50,7 +50,7 @@ export type OrderItem = {
 };
 
 export type OrderType = Order & {
-  customer?: userType;
+  customer?: CustomerType;
   driver?: DriverType;
   vehicle: vechicleType;
   amount: number;

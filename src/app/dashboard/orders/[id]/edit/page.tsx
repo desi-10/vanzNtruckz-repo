@@ -319,7 +319,7 @@ export default function EditOrderPage() {
                 <Label>Vehicle Type</Label>
                 <Input
                   type="text"
-                  value={driver?.vehicle.name || order?.vehicle.name}
+                  value={driver?.vehicle?.name || order?.vehicle?.name}
                   disabled
                 />
               </div>
