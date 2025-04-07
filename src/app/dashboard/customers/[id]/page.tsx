@@ -33,11 +33,11 @@ export default function CustomerPage() {
         <div>
           <h1 className="text-2xl font-bold">{customer?.name}</h1>
           <div className="flex items-center gap-2 text-xs">
-            <span className=" text-gray-500">Email: </span>
+            <span className="text-gray-500">Email: </span>
             <p className="text-gray-500">{customer?.email || "N/A"}</p>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className=" text-gray-500">Phone: </span>
+            <span className="text-gray-500">Phone: </span>
             <p className="text-gray-500">{customer?.phone || "N/A"}</p>
           </div>
         </div>
@@ -51,34 +51,32 @@ export default function CustomerPage() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Orders */}
-        <div className="bg-white border rounded-xl p-4 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-4 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-500">
               Total Orders
             </span>
             <UserCheck className="h-4 w-4 text-muted-foreground" />
           </div>
-          <p className="text-2xl font-bold text-gray-900">
-            {customer?.orders?.length || 0}
-          </p>
+          <p className="text-2xl font-bold">{customer?.orders?.length || 0}</p>
         </div>
 
         {/* Member Since */}
-        <div className="bg-white border rounded-xl p-4 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-4 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-500">
               Member Since
             </span>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </div>
-          <p className="text-base font-semibold text-gray-700">
+          <p className="text-base font-semibold ">
             {/* {format(customer.createdAt, "MMMM dd, yyyy")} */}
             --
           </p>
         </div>
 
         {/* Account Status */}
-        <div className="bg-white border rounded-xl p-4 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-4 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-500">
               Account Status

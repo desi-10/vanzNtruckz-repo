@@ -63,7 +63,7 @@ export default function DriverOrdersPage() {
       {/* Stats */}
       <section className="grid grid-cols-1 md:grid-cols-4 gap-3">
         {/* Total Orders */}
-        <div className="bg-white border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-gray-500">
               Total Orders
@@ -81,7 +81,7 @@ export default function DriverOrdersPage() {
         </div>
 
         {/* Completed Orders */}
-        <div className="bg-white border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-gray-500">
               Completed Orders
@@ -102,7 +102,7 @@ export default function DriverOrdersPage() {
         </div>
 
         {/* Active Orders */}
-        <div className="bg-white border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-gray-500">
               Active Orders
@@ -123,7 +123,7 @@ export default function DriverOrdersPage() {
         </div>
 
         {/* Cancelled Orders */}
-        <div className="bg-white border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
+        <div className="border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-gray-500">
               Cancelled Orders
