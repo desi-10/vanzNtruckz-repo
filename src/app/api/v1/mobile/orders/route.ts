@@ -349,7 +349,7 @@ export const POST = async (request: Request) => {
             orderId: newOrder.id,
             type: "BID",
             isRead: false,
-            message: `You have a new order`,
+            message: `You have a new delievery`,
           },
         });
 
@@ -385,7 +385,7 @@ export const POST = async (request: Request) => {
             orderId: newOrder.id,
             type: "ORDER",
             isRead: false,
-            message: `Your order has been placed successfully`,
+            message: `A new order has been placed from ${newOrder.customer.name}`,
           },
         });
 
