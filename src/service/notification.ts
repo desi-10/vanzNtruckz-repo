@@ -1,12 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchNotifications, patchNotification } from "./query/notification";
 
-export const useGetNotifications = () => {
+export const useGetNotifications = (page = 1) => {
   return useQuery({
-    queryKey: ["notification"],
-    queryFn: async () => {
-      const { data } = await axios.get("/api/v1/web/notifications");
-      return data;
+    queryKey: ["notification", page],
+    queryFn: () => fetchNotifications(page),
+  });
+};
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => patchNotification(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 };

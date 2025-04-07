@@ -46,6 +46,12 @@ export const GET = async (request: Request) => {
         skip,
         take: limit,
         include: {
+          user: {
+            select: {
+              name: true,
+              phone: true,
+            },
+          },
           order: {
             select: {
               id: true,
