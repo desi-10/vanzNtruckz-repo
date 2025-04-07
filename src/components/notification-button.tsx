@@ -59,8 +59,7 @@ const NotificationPopver = () => {
               >
                 <div className="px-4 py-3 border-b flex flex-col text-xs">
                   <span className="text-xs">
-                    <strong>{notification.message}</strong>{" "}
-                    <strong>{notification.order.customer?.name}</strong>
+                    <strong>{notification.message}</strong>
                   </span>
                   <span className="text-gray-500 text-xs">
                     {format(
