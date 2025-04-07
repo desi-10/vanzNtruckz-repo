@@ -3,7 +3,7 @@ import { fetchNotifications, patchNotification } from "./query/notification";
 
 export const useGetNotifications = (page = 1) => {
   return useQuery({
-    queryKey: ["notification", page],
+    queryKey: ["notifications", page],
     queryFn: () => fetchNotifications(page),
   });
 };

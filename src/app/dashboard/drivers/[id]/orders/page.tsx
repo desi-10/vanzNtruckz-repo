@@ -52,6 +52,10 @@ export default function DriverOrdersPage() {
             <span className=" text-gray-500">Phone: </span>
             <p className="text-gray-500">{driver?.user?.phone || "N/A"}</p>
           </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className=" text-gray-500">Vehicle: </span>
+            <p className="text-gray-500">{driver?.vehicle.name || "N/A"}</p>
+          </div>
         </div>
         <div className="ml-auto">
           <Button className="bg-primaryColor text-white hover:bg-primaryColor/90">
@@ -126,7 +130,7 @@ export default function DriverOrdersPage() {
         <div className="border rounded-xl p-3 shadow-sm transition-all hover:shadow-md hover:scale-[1.01]">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-gray-500">
-              Cancelled Orders
+              Canceled Orders
             </span>
             <XCircle className="h-4 w-4 text-red-600" />
           </div>
