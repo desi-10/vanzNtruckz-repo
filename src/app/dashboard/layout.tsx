@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import DynamicBreadcrumb from "@/components/dynamic-breadcrumbs";
 import { ModeToggle } from "@/components/mode-toggle";
+import NotificationPopver from "@/components/notification-button";
 import NotificationLayout from "@/components/notification-layout";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -23,7 +24,10 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                 <Separator orientation="vertical" className="mr-2 h-4" />
                 <DynamicBreadcrumb /> {/* Replaces the static breadcrumb */}
               </div>
-              <ModeToggle />
+              <div className="flex items-center gap-5">
+                <NotificationPopver />
+                <ModeToggle />
+              </div>
             </header>
             <main className="p-4 lg:p-8">{children}</main>
           </SidebarInset>

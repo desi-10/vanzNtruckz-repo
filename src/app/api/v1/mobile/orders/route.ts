@@ -326,20 +326,6 @@ export const POST = async (request: Request) => {
         },
       });
 
-      console.log(parcel, "parcel");
-
-      // await Promise.all(
-      //   parcel.map((item) =>
-      //     tx.orderItem.create({
-      //       data: {
-      //         orderId: newOrder.id, // ✅ Manually linking orderId
-      //         parcelId: item.parcelId,
-      //         pieces: item.pieces,
-      //       },
-      //     })
-      //   )
-      // );
-
       const drivers = await tx.driver.findMany({
         where: {
           vehicleId: vehicleId,
@@ -392,6 +378,16 @@ export const POST = async (request: Request) => {
       for (const admin of admins) {
         //sending sms
         console.log("Send sms to admin", admin);
+
+        await tx.inbox.create({
+          data: {
+            userId: admin.id,
+            orderId: newOrder.id,
+            type: "ORDER",
+            isRead: false,
+            message: `Your order has been placed successfully`,
+          },
+        });
 
         // const message = {
         //   topic: "orders",
