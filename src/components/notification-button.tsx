@@ -7,19 +7,15 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  useGetNotifications,
-  useMarkNotificationAsRead,
-} from "@/service/notification";
+import { useMarkNotificationAsRead } from "@/service/notification";
 import { Bell, CheckCheck } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
-import { NotificationType } from "@/types/notification";
 import { PopoverClose } from "@radix-ui/react-popover";
+import { useSocket } from "@/hooks/useSocket";
 
 const NotificationPopver = () => {
-  const { data: notificationsData } = useGetNotifications();
-  const notifications: NotificationType[] = notificationsData?.data || [];
+  const { allNotifications } = useSocket();
 
   const { mutateAsync: handleIsRead } = useMarkNotificationAsRead();
 
@@ -34,7 +30,7 @@ const NotificationPopver = () => {
           <Bell className="w-6 h-6 text-gray-500" />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
             {
-              notifications.filter((notification) => !notification.isRead)
+              allNotifications.filter((notification) => !notification.isRead)
                 .length
             }
           </span>
@@ -43,7 +39,7 @@ const NotificationPopver = () => {
       <PopoverContent className="w-96 p-0 shadow-lg rounded-lg">
         <div className="border-b px-4 py-2 font-semibold">Notification</div>
         <ScrollArea className="h-64">
-          {notifications?.map((notification) => (
+          {allNotifications?.map((notification) => (
             <Link
               href={`/dashboard/orders/${notification.order.id}`}
               key={notification.id}

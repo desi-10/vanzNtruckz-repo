@@ -3,8 +3,10 @@ import { NextResponse } from "next/server";
 import { validateJWT } from "@/utils/jwt";
 import { uploadFile } from "@/utils/cloudinary";
 import { OrderSchema } from "@/types/order";
-// import { sendAdminNotification } from "@/config/firebase";
-// import { scheduleNotification } from "@/utils/scheduler";
+import {
+  orderCreatedNotification,
+  scheduleBidNotification,
+} from "@/utils/scheduler";
 
 /** ✅ GET - Fetch Paginated Orders */
 
@@ -195,8 +197,8 @@ export const GET = async (request: Request) => {
 };
 
 export const POST = async (request: Request) => {
-  const id = validateJWT(request);
-  // const id = "cm8x1ve5q0002l5037yo6jj2t";
+  // const id = validateJWT(request);
+  const id = "cm8x1ve5q0002l5037yo6jj2t";
 
   if (!id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -358,54 +360,47 @@ export const POST = async (request: Request) => {
       }
 
       //create inbox for customer
-      await tx.inbox.create({
-        data: {
-          userId: user.id,
-          orderId: newOrder.id,
-          type: "ORDER",
-          isRead: false,
-          message: `Your order has been placed successfully`,
-        },
-      });
-
-      //alert back-office if no responds in 5minutes using message broker
-      const admins = await tx.user.findMany({
-        where: {
-          role: { in: ["ADMIN", "SUPER_ADMIN"] }, // ✅ Correct way to filter by multiple roles
-        },
-      });
-
-      for (const admin of admins) {
-        //sending sms
-        console.log("Send sms to admin", admin);
-
-        await tx.inbox.create({
-          data: {
-            userId: admin.id,
-            orderId: newOrder.id,
-            type: "ORDER",
-            isRead: false,
-            message: `A new order has been placed from ${newOrder.customer.name}`,
-          },
-        });
-
-        // const message = {
-        //   topic: "orders",
-        //   notification: {
-        //     title: "New Order",
-        //     body: "Order has been placed",
-        //   },
-        //   token: admin.fcmToken || "",
-        // };
-
-        // await sendAdminNotification(message);
-        // await scheduleNotification({
-        //   orderId: newOrder.id,
-        //   fmcToken: admin.fcmToken || "",
-        // });
-      }
 
       return newOrder;
+    });
+
+    await prisma.inbox.create({
+      data: {
+        userId: user.id,
+        orderId: result.id,
+        type: "ORDER",
+        isRead: false,
+        message: `Your order has been placed successfully`,
+      },
+    });
+
+    const admins = await prisma.user.findMany({
+      where: {
+        role: { in: ["ADMIN", "SUPER_ADMIN"] }, // ✅ Correct way to filter by multiple roles
+      },
+    });
+
+    for (const admin of admins) {
+      //sending sms
+      console.log("Send sms to admin", admin);
+
+      await prisma.inbox.create({
+        data: {
+          userId: admin.id,
+          orderId: result.id,
+          type: "ORDER",
+          isRead: false,
+          message: `A new order has been placed from ${result.customer.name}`,
+        },
+      });
+    }
+
+    await orderCreatedNotification({
+      message: "A new order has been placed from " + result.customer.name,
+    });
+    await scheduleBidNotification({
+      orderId: result.id,
+      message: `A new order has been placed from ${result.id}`,
     });
 
     return NextResponse.json(

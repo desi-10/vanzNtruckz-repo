@@ -1,16 +1,23 @@
-import notificationQueue from "@/config/queue";
+import { noBidNotificationQueue, notificationQueue } from "@/config/queue";
 
-export async function scheduleNotification({
+export async function orderCreatedNotification({
+  message,
+}: {
+  message: string;
+}) {
+  await notificationQueue.add("order-created", { message });
+}
+export async function scheduleBidNotification({
   orderId,
-  fmcToken,
+  message,
 }: {
   orderId: string;
-  fmcToken: string;
+  message: string;
 }) {
-  await notificationQueue.add(
-    "notifyAdmin",
-    { orderId, fmcToken },
-    { delay: 5 * 1000 } // Delay for 1 minute
+  await noBidNotificationQueue.add(
+    "no-bids",
+    { orderId, message },
+    { delay: 60 * 1000 } // Delay for 1 minute
     // { delay: 5 * 60 * 1000 } // Delay for 5 minutes
   );
 }
