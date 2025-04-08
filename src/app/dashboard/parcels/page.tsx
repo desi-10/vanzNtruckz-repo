@@ -17,7 +17,7 @@ const ParcelsPage = () => {
   return (
     <div>
       <div className="flex items-center justify-between w-full border-b pb-4 mb-6">
-        <PageHeader title="Parcels" subtitle="Manage and track parcels." />
+        <PageHeader title="Goods" subtitle="Manage and track goods." />
         <AddParcelAction />
       </div>
       {isLoading ? (

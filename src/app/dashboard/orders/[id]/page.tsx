@@ -49,12 +49,12 @@ const SingleOrder = () => {
             <Button variant="ghost" asChild>
               <Link href="/dashboard/orders">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Orders
+                Back to bookings
               </Link>
             </Button>
           </div>
           <PageHeader
-            title="Order Details"
+            title="Book Details"
             subtitle="View and manage delivery information"
           />
         </div>
@@ -64,13 +64,13 @@ const SingleOrder = () => {
             variant="outline"
             className="bg-white border-red-500 text-red-500  hover:text-red-500"
           >
-            Cancel Order
+            Cancel Booking
           </Button>
           <Button
             asChild
             className="bg-primaryColor text-white hover:bg-primaryColor/90"
           >
-            <Link href={`/dashboard/orders/${id}/edit`}>Edit Order</Link>
+            <Link href={`/dashboard/orders/${id}/edit`}>Edit Booking</Link>
           </Button>
         </div>
       </div>

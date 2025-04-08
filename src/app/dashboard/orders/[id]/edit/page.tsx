@@ -170,11 +170,11 @@ export default function EditOrderPage() {
           <Button variant="ghost" asChild>
             <Link href={`/dashboard/orders/${id}`}>
               <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Order
+              Back to Booking
             </Link>
           </Button>
-          <h1 className="text-2xl font-bold mt-2">Edit Order</h1>
-          <p className="text-sm text-gray-600">Update order information</p>
+          <h1 className="text-2xl font-bold mt-2">Edit Booking</h1>
+          <p className="text-sm text-gray-600">Update booking information</p>
         </div>
         <Button
           type="submit"
@@ -186,7 +186,7 @@ export default function EditOrderPage() {
       </div>
 
       <div className="space-y-2 mb-5">
-        <Label>Order Images</Label>
+        <Label>Booking Images</Label>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((num) => {
             const imageKey = `image${
@@ -264,7 +264,7 @@ export default function EditOrderPage() {
       <div className="grid grid-cols-3 gap-4">
         <section className="col-span-1">
           <div>
-            <p>Order Details</p>
+            <p>Booking Details</p>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -278,7 +278,7 @@ export default function EditOrderPage() {
 
             {/* Status */}
             <div className="space-y-2">
-              <Label>Order Status</Label>
+              <Label>Booking Status</Label>
               <Select
                 value={watch("status")}
                 onValueChange={(val) => setValue("status", val as OrderStatus)}

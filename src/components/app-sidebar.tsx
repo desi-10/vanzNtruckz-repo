@@ -48,7 +48,7 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Orders",
+          title: "Bookings",
           url: "/dashboard/orders",
         },
         {
@@ -64,7 +64,7 @@ const data = {
           url: "/dashboard/vehicles",
         },
         {
-          title: "Parcels",
+          title: "Goods",
           url: "/dashboard/parcels",
         },
         {

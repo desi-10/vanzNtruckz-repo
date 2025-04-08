@@ -13,10 +13,7 @@ const OrdersPage = () => {
   return (
     <div>
       <div className="flex items-center justify-between w-full border-b pb-4 mb-6">
-        <PageHeader
-          title="Delivery Orders"
-          subtitle="Manage and track orders."
-        />
+        <PageHeader title="Bookings" subtitle="Manage and track bookings." />
         {/* <AddVehicleAction /> */}
       </div>
       {isLoading ? (

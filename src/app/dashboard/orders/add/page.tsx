@@ -30,8 +30,8 @@ export default function CreateOrder() {
         <p>Back to orders</p>
       </Button> */}
       <PageHeader
-        title="Create Order"
-        subtitle="Manage customer orders efficiently."
+        title="Booking"
+        subtitle="Manage customer bookings efficiently."
         action={<Button>Save Order</Button>}
       />
       <form onSubmit={() => {}} className="grid lg:grid-cols-3 gap-10">

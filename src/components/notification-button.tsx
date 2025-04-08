@@ -27,7 +27,7 @@ const NotificationPopver = () => {
           size="icon"
           className="relative cursor-pointer"
         >
-          <Bell className="w-6 h-6 text-gray-500" />
+          <Bell className="w-6 h-6" />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
             {
               allNotifications.filter((notification) => !notification.isRead)

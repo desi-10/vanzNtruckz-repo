@@ -54,14 +54,14 @@ const AddParcelAction = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger>
           <Button className="bg-primaryColor text-white hover:bg-primaryColor/90">
-            Add Parcel
+            Add Good
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Parcel</DialogTitle>
+            <DialogTitle>Add Good</DialogTitle>
             <DialogDescription>
-              Add a new parcel to your account.
+              Add a new good to your account.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

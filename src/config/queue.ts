@@ -50,11 +50,15 @@ const worker2 = new Worker(
           id: orderId,
         },
         include: {
-          bids: true,
+          bids: {
+            include: {
+              driver: true,
+            },
+          },
         },
       });
 
-      if (order?.bids && order?.bids?.length === 1) {
+      if (order?.bids && order?.bids?.length <= 1) {
         const admins = await prisma.user.findMany({
           where: {
             role: { in: ["ADMIN", "SUPER_ADMIN"] }, // ✅ Correct way to filter by multiple roles
@@ -77,7 +81,7 @@ const worker2 = new Worker(
           message,
         });
       } else {
-        // CASE 2: More than 1 bid — calculate average + commission
+        // CASE 2: More than 2 bid — calculate average + commission
         const bidAmounts = order?.bids
           ? order?.bids?.map((bid) => bid.amount)
           : [];
@@ -87,18 +91,12 @@ const worker2 = new Worker(
         const COMMISSION_RATE = 0.1; // 10%
         const priceWithCommission = averageBid + averageBid * COMMISSION_RATE;
 
-        // Get all drivers (you can refine this if needed)
-        const drivers = await prisma.driver.findMany({
-          include: {
-            user: true, // assuming Driver has a relation to User for email/phone
-          },
-        });
+        const drivers = order?.bids?.map((bid) => bid.driver) || [];
 
         for (const driver of drivers) {
-          // You can customize this with socket, FCM, SMS, etc.
           await prisma.inbox.create({
             data: {
-              userId: driver.userId, // assuming this connects to the User model
+              userId: driver.userId,
               orderId: order?.id,
               type: "BID",
               isRead: false,
@@ -110,11 +108,11 @@ const worker2 = new Worker(
         }
 
         // Optional: Send via socket/HTTP
-        await axios.post("http://localhost:4000/new-bid-notification", {
-          message: `Average bid: GHS ${averageBid.toFixed(
-            2
-          )}, after commission: GHS ${priceWithCommission.toFixed(2)}`,
-        });
+        // await axios.post("http://localhost:4000/new-bid-notification", {
+        //   message: `Average bid: GHS ${averageBid.toFixed(
+        //     2
+        //   )}, after commission: GHS ${priceWithCommission.toFixed(2)}`,
+        // });
       }
 
       console.log("No bid notification sent");

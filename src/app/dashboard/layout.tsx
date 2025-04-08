@@ -9,7 +9,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { Metadata } from "next";
 import React from "react";
+
+export const metadata: Metadata = {
+  title: "VanzNTruckz | Dashboard",
+  description: "Dashboard page for VanzNTruckz",
+};
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
